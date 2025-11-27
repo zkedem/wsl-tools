@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ -n "$(command -v systemctl)" ]
+then
+	systemctl enable wslg-fix.service
+	systemctl daemon-reload
+fi
+
+Xwslg -divert Xorg

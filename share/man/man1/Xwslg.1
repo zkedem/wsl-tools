@@ -1,0 +1,126 @@
+'\" t
+.\"
+.\" Copyright 1984 - 1991, 1993, 1994, 1998  The Open Group
+.\"
+.\" Permission to use, copy, modify, distribute, and sell this software and its
+.\" documentation for any purpose is hereby granted without fee, provided that
+.\" the above copyright notice appear in all copies and that both that
+.\" copyright notice and this permission notice appear in supporting
+.\" documentation.
+.\"
+.\" The above copyright notice and this permission notice shall be included
+.\" in all copies or substantial portions of the Software.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+.\" OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+.\" IN NO EVENT SHALL THE OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR
+.\" OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+.\" ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+.\" OTHER DEALINGS IN THE SOFTWARE.
+.\"
+.\" Except as contained in this notice, the name of The Open Group shall
+.\" not be used in advertising or otherwise to promote the sale, use or
+.\" other dealings in this Software without prior written authorization
+.\" from The Open Group.
+.TH XWSLG 1 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+Xwslg \- an X server for WSLg
+.SH SYNOPSIS
+.B Xwslg
+[option ...]
+.SH DESCRIPTION
+\fIXwslg\fP is a wrapper script for \fIXwayland\fP(1) that sets up the runtime
+environment for \fIXwayland\fP and also translates some \fIXorg\fP(1) options into
+ones that \fIXwayland\fP understands. \fIXwslg\fP is meant as a replacement for the
+\fIXorg\fP X server under the Windows Subsystem for Linux GUI (WSLg).
+.SH "ENVIRONMENT VARIABLES"
+.\" adapted from Xwayland(1).
+.TP
+.B WAYLAND_DISPLAY
+the name of the display of the Wayland server.
+.TP
+.B XWAYLAND_NO_GLAMOR
+disable glamor and DRI3 support in \fIXwayland\fP, for testing purposes.
+.TP
+.B XWSLGCONFIG
+absolute path to configuration file for "root" user; relative path to
+configuration file for regular users; see \fIxwslg.conf\fP(5) for more
+information.
+.SH OPTIONS
+\fIXwslg\fP accepts all the command line options described in the \fIXserver\fP(1)
+and \fIXwayland\fP(1) manual pages, as well as the \fB\-config\fP and \fB\-configdir\fP
+options described in \fIXorg\fP(1). The following options are also supported:
+.TP
+.B \-divert \fIcmd\fP
+Divert a command to \fIXwslg\fP. This means that, when you attempt to run
+\fIcmd\fP, \fIXwslg\fP will be called instead. The command should take the same
+options/arguments as a typical X server.
+
+In most cases, if you have installed @NAME@ from your package manager,
+\fIXorg\fP will be diverted to \fIXwslg\fP by default. If not, you can run
+\&'Xwslg \fB\-divert\fP Xorg'.
+
+The original command will still be available as '\fIcmd\fP.diverted'.
+.TP
+.B \-restore \fIcmd\fP
+Restore a command previously diverted to \fIXwslg\fP with the \fB\-divert\fP option.
+.PP
+Furthermore, the display number option (\fB:\fP) described in the \fIXserver\fP(1)
+manual page, and the \fB\-geometry\fP option described in the \fIXwayland\fP(1) manual
+page, are modified as follows:
+.TP
+.B :\fIdisplaynumber\fP
+\fIXwslg\fP runs as the given \fIdisplaynumber\fP, which by default is 0. If multiple
+X servers are to run simultaneously on a host, each must have a unique
+display number. If a display number is already taken, \fIXwslg\fP will
+automatically select the lowest available display number. See the DISPLAY
+NAMES section of the \fIX\fP(7) manual page to learn how to specify which
+display number clients should try to use.
+.TP
+.B \-geometry \fIWxH\fP|\fIauto\fP
+Sets the geometry of the \fIXwayland\fP window to \fIWxH\fP when running rootful. If
+\fIauto\fP is specified instead, the geometry will be set automatically to match
+that of the physical monitor.
+
+This option is not compatible with rootless mode (\fB\-rootless\fP).
+.SH CONFIGURATION
+.\" adapted from Xorg(1).
+\fIXwslg\fP makes use of a configuration file called \fIxwslg.conf\fP and
+configuration files with the suffix \fI.conf\fP in a directory called
+\fIxwslg.conf.d\fP for its initial setup. Refer to the \fIxwslg.conf\fP(5) manual page
+for information about the format of this file.
+.PP
+If no \fIxwslg.conf\fP file or \fIxwslg.conf.d\fP files are present, \fIXwslg\fP assumes the
+same default settings as \fIXwayland\fP.
+.SH FILES
+.\" adapted from Xorg(1).
+\fIXwslg\fP config files can be found in a range of locations. These are
+documented fully in the \fIxwslg.conf\fP(5) manual page. Some common locations
+are shown here.
+.TP
+.B /etc/X11/xwslg.conf
+\fIXwslg\fP configuration file.
+.TP
+.B /etc/xwslg.conf
+\fIXwslg\fP configuration file.
+.TP
+.B /usr/etc/xwslg.conf
+\fIXwslg\fP configuration file.
+.TP
+.B /usr/lib/X11/xwslg.conf
+\fIXwslg\fP configuration file.
+.TP
+.B /etc/X11/xwslg.conf.d
+\fIXwslg\fP configuration directory.
+.TP
+.B /etc/xwslg.conf.d
+\fIXwslg\fP configuration directory.
+.TP
+.B /usr/etc/xwslg.conf.d
+\fIXwslg\fP configuration directory.
+.TP
+.B /usr/lib/X11/xwslg.conf.d
+\fIXwslg\fP configuration directory.
+.SH "SEE ALSO"
+\fIXorg\fP(1), \fIXserver\fP(1), \fIXwayland\fP(1), \fIxwslg.conf\fP(5), \fIX\fP(7)

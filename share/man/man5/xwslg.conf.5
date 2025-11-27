@@ -1,0 +1,419 @@
+'\" t
+.\"
+.\" Copyright 1984 - 1991, 1993, 1994, 1998  The Open Group
+.\"
+.\" Permission to use, copy, modify, distribute, and sell this software and its
+.\" documentation for any purpose is hereby granted without fee, provided that
+.\" the above copyright notice appear in all copies and that both that
+.\" copyright notice and this permission notice appear in supporting
+.\" documentation.
+.\"
+.\" The above copyright notice and this permission notice shall be included
+.\" in all copies or substantial portions of the Software.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+.\" OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+.\" IN NO EVENT SHALL THE OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR
+.\" OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+.\" ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+.\" OTHER DEALINGS IN THE SOFTWARE.
+.\"
+.\" Except as contained in this notice, the name of The Open Group shall
+.\" not be used in advertising or otherwise to promote the sale, use or
+.\" other dealings in this Software without prior written authorization
+.\" from The Open Group.
+.\" shorthand for double quote that works everywhere.
+.ds q \N'34'
+.TH XWSLG.CONF 5 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+xwslg.conf, xwslg.conf.d \- configuration files for Xwslg
+.SH INTRODUCTION
+\fIXwslg\fP, like \fIXorg\fP, supports several mechanisms for supplying and obtaining
+configuration and run-time parameters: command line options, environment
+variables, the \fIxwslg.conf\fP and \fIxwslg.conf.d\fP configuration files,
+auto-detection, and fallback defaults. When the same information is
+supplied in more than one way, the highest precedence mechanism is used.
+The list of mechanisms is ordered from highest precedence to lowest. The
+available command line options and environment variables are described in
+the \fIXserver\fP(1), \fIXorg\fP(1), \fIXwayland\fP(1), and \fIXwslg\fP(1) manual pages.
+Configuration file parameters and default values are described below.
+.SH DESCRIPTION
+The configuration files described here mostly follow the same format as
+for \fIXorg\fP, albeit with some differences. Hence, much of this page is
+adapted from \fIxorg.conf\fP(5).
+.PP
+\fIXwslg\fP uses a configuration file called \fIxwslg.conf\fP and files ending in the
+suffix \fI.conf\fP from the directory \fIxwslg.conf.d\fP for its initial setup. The
+\fIxwslg.conf\fP file is searched for in the following places when \fIXwslg\fP is
+started as a normal user:
+.PP
+.RS
+.nf
+.IR /etc/X11/ <cmdline>
+.IR /usr/etc/X11/ <cmdline>
+.IB /etc/X11/ $XWSLGCONFIG
+.IB /usr/etc/X11/ $XWSLGCONFIG
+.I /etc/X11/xwslg.conf
+.I /etc/xwslg.conf
+.IR /usr/etc/X11/xwslg.conf. <hostname>
+.I /usr/etc/X11/xwslg.conf
+.IR /usr/lib/X11/xwslg.conf. <hostname>
+.I /usr/lib/X11/xwslg.conf
+.fi
+.RE
+.PP
+where \fI<cmdline>\fP is a relative path specified with the \fB\-config\fP command line
+option, \fB$XWSLGCONFIG\fP is the relative path specified by that environment
+variable, and \fI<hostname>\fP is the machine's hostname as reported by
+\fIuname\fP(1).
+.PP
+When \fIXwslg\fP is started by the \(lqroot\(rq user, the config file search locations
+are as follows:
+.PP
+.RS
+.nf
+<cmdline>
+.IR /etc/X11/ <cmdline>
+.IR /usr/etc/X11/ <cmdline>
+.B $XWSLGCONFIG
+.IB /etc/X11/ $XWSLGCONFIG
+.IB /usr/etc/X11/ $XWSLGCONFIG
+.I /etc/X11/xwslg.conf
+.I /etc/xwslg.conf
+.IR /usr/etc/X11/xwslg.conf. <hostname>
+.I /usr/etc/X11/xwslg.conf
+.IR /usr/lib/X11/xwslg.conf. <hostname>
+.I /usr/lib/X11/xwslg.conf
+.fi
+.RE
+.PP
+where \fI<cmdline>\fP is the path specified with the \fB\-config\fP command line
+option (which may be absolute or relative), \fB$XWSLGCONFIG\fP is the relative
+path specified by that environment variable (absolute or relative), \fB$HOME\fP
+is the path specified by that environment variable (usually the home
+directory), and \fI<hostname>\fP is the machine's hostname as reported by
+\fIuname\fP(1).
+.PP
+Additional configuration files are searched for in the following
+directories when \fIXwslg\fP is started as a normal user:
+.PP
+.RS
+.nf
+.IR /etc/X11/ <cmdline>
+.I /etc/X11/xwslg.conf.d
+.fi
+.RE
+.PP
+where \fI<cmdline>\fP is a relative path specified with the \fB\-configdir\fP command
+line option.
+.PP
+When \fIXwslg\fP is started by the \(lqroot\(rq user, the config directory search
+locations are as follows:
+.PP
+.RS
+.nf
+<cmdline>
+.IR /etc/X11/ <cmdline>
+.I /etc/X11/xwslg.conf.d
+.fi
+.RE
+.PP
+where \fI<cmdline>\fP is the path specified with the \fB\-configdir\fP command line
+option (which may be absolute or relative).
+.PP
+Finally, configuration files will also be searched for in a directory
+reserved for system use. These files are found in the following directory:
+.PP
+.RS
+.nf
+.I /usr/share/X11/xwslg.conf.d
+.fi
+.RE
+.PP
+The \fIxwslg.conf\fP and \fIxwslg.conf.d\fP files are composed of a number of sections
+which may be present in any order, or omitted to use default configuration
+values. Each section has the form:
+.PP
+.RS
+.nf
+.BI "Section  \*q" SectionName \*q
+.RI "    " SectionEntry
+    ...
+.B EndSection
+.fi
+.RE
+.PP
+Unlike \fIXorg\fP, which recognizes several section names in its configuration
+files, \fIXwslg\fP recognizes only a few. The section names recognized by \fIXwslg\fP
+are:
+.PP
+.RS
+.nf
+.BR "ServerFlags    " "Server flags"
+.BR "Extensions     " "Extension enabling"
+.BR "Vendor         " "Configuration options specific to \fIXwslg\fP"
+.fi
+.RE
+.PP
+If \fIXwslg\fP encounters a section or entry name it does not recognize, it will
+simply ignore it. Additional section and entry names may be recognized in
+future releases.
+.PP
+Config file keywords are case\-insensitive, and \(lq_\(rq characters are
+ignored. Most strings (including \fBOption\fP names) are also case-insensitive,
+and insensitive to white space and \(lq_\(rq characters.
+.PP
+Each config file entry usually takes up a single line in the file. They
+consist of a keyword, which is possibly followed by one or more arguments,
+with the number and types of the arguments depending on the keyword. Like
+with section names, \fIXwslg\fP recognizes fewer argument types than \fIXorg\fP,
+though this may change in future releases. The argument types are:
+.PP
+.RS
+.nf
+.BR "Integer     " "an integer number in decimal, hex or octal"
+.BR "String      " "a string enclosed in double quote marks (\*q)"
+.fi
+.RE
+.PP
+Note: hex integer values must be prefixed with \(lq0x\(rq, and octal values
+with \(lq0\(rq.
+.PP
+A special keyword called \fBOption\fP may be used to provide free-form data to
+various components of the server. The \fBOption\fP keyword takes either one or
+two string arguments. The first is the option name, and the optional
+second argument is the option value. Valid option value types include:
+.PP
+.RS
+.nf
+.BR "Integer     " "an integer number in decimal, hex or octal"
+.BR "String      " "a sequence of characters"
+.BR "Boolean     " "a boolean value (see below)"
+.fi
+.RE
+.PP
+Note that \fIall\fP \fBOption\fP values, not just strings, must be enclosed in quotes.
+.PP
+Boolean options may optionally have a value specified. When no value is
+specified, the option's value is \fBTRUE\fP. The following boolean option
+values are recognized as \fBTRUE\fP:
+.PP
+.RS
+.BR 1 ,
+.BR on ,
+.BR true ,
+.B yes
+.RE
+.PP
+and the following boolean option values are recognized as \fBFALSE\fP:
+.PP
+.RS
+.BR 0 ,
+.BR off ,
+.BR false ,
+.B no
+.RE
+.PP
+In general, if an option's name is prefixed with \*q\fBNo\fP\*q, its meaning is
+inverted.
+.PP
+Example: the following option entries are equivalent:
+.PP
+.RS
+.nf
+.B "Option \*qAccel\*q   \*qOff\*q"
+.B "Option \*qNoAccel\*q"
+.B "Option \*qNoAccel\*q \*qOn\*q"
+.B "Option \*qAccel\*q   \*qfalse\*q"
+.B "Option \*qAccel\*q   \*qno\*q"
+.fi
+.RE
+.SH "SERVERFLAGS SECTION"
+This section is used to specify some global X server options. All of the
+entries in this section are \fBOptions\fP. The \fBServerFlags\fP section is optional,
+as are the entries that may be specified in it. Options with command line
+equivalents are overridden when their command line equivalent is used. The
+options recognized by this section are:
+.TP
+.BI "Option \*qBlankTime\*q  \*q" time \*q
+sets the inactivity timeout for the \fBblank\fP phase of the screensaver. \fItime\fP
+is in minutes. This is equivalent to \fIXwslg\fP's \fB\-s\fP flag, and the value can
+be changed at run\-time with \fIxset\fP(1). Default: 10 minutes.
+.TP
+.BI "Option \*qXinerama\*q  \*q" boolean \*q
+enable or disable XINERAMA extension. Default is disabled.
+.TP
+.BI "Option \*qIndirectGLX\*q \*q" boolean \*q
+enable or disable indirect GLX contexts. Indirect GLX contexts are
+disabled by default.
+.SH "EXTENSIONS SECTION"
+This section is used to specify which X11 protocol extensions should be
+enabled or disabled. The \fBExtensions\fP section is optional, as are all of the
+entries that may be specified in it.
+.PP
+Entries in this section are listed as \fBOption\fP statements with the name of
+the extension as the first argument, and a boolean value as the second.
+The extension name is case-sensitive, and matches the form shown in the
+output of \*qXwslg \fB\-help\fP\*q.
+.PP
+.RS
+Example: the MIT\-SHM extension can be disabled with the following entry:
+.PP
+.RS
+.nf
+.B "Section \*qExtensions\*q"
+.B "    Option \*qMIT\-SHM\*q \*qDisable\*q"
+.B "EndSection"
+.fi
+.RE
+.RE
+.SH "VENDOR SECTION"
+Traditionally, the \fBVendor\fP section was used to provide vendor\-specific
+configuration information. Under \fIXwslg\fP, the \fBVendor\fP section is used to
+specify default settings for \fIXwslg\fP in different contexts, and to pass
+options to the underlying \fIXwayland\fP instance. As such, the \fBVendor\fP section
+may be present any number of times, and contains an optional \fBIdentifier\fP
+entry and any number of \fBOption\fP flags.
+.PP
+The \fBIdentifier\fP entry, if it is present, specifies the name of the process
+that called \fIXwslg\fP; in that case, the settings in the respective \fBVendor\fP
+section will only apply to those instances of \fIXwslg\fP whose parent process
+name matches that \fBIdentifier\fP entry. If no \fBIdentifier\fP entry is present, the
+settings will apply to all instances of \fIXwslg\fP unless overridden by command
+line options. The \fBOption\fP flags correspond to command line options of
+\fIXwslg\fP, except for the \fBExtend\fP flag which is explained below. The options
+recognized by this section are:
+.TP
+.BI "Option \*qExtend\*q \*q" name \*q
+inherits settings from another \fBVendor\fP section that has an \fBIdentifier\fP entry
+matching \fIname\fP. This can be useful if you want the same settings to apply
+in multiple contexts.
+.TP
+.BI "Option \*qdecorate\*q \*q" boolean \*q
+adds decorations to the \fIXwayland\fP root window when running rootful. Default
+is disabled.
+.TP
+.BI "Option \*qenable\-ei\-portal\*q \*q" boolean \*q
+enables support for the XDG portal for input emulation. Default is
+disabled.
+.TP
+.BI "Option \*qfullscreen\*q \*q" boolean \*q
+sets the \fIXwayland\fP window fullscreen when running rootful. Default is
+disabled.
+.TP
+.B Option \*qgeometry\*q \*q\fIWxH\fP|\fIauto\fP\*q
+sets the geometry of the window when running rootful. \fIauto\fP sets the
+geometry to match that of the physical monitor. Default: 640x480.
+.TP
+.B Option \*qglamor\*q \*q\fIgl\fP|\fIes\fP|\fIoff\fP\*q
+sets rendering API for Glamor acceleration. Cannot be used with \fBshm\fP
+option. Default: gl.
+.TP
+.BI "Option \*qhidpi\*q \*q" boolean \*q
+adjusts to the scale of the outputs when running rootful in windowing
+mode. Default is disabled.
+.TP
+.BI "Option \*qhost\-grab\*q \*q" boolean \*q
+inhibits host keyboard shorcuts and confines the pointer when running
+rootful. Default is disabled.
+.TP
+.BI "Option \*qinitfd\*q \*q" fd \*q
+adds the given fd as a listen socket for initialization of X clients.
+.TP
+.BI "Option \*qlisten\*q \*q" fd \*q
+is deprecated; use \fBlistenfd\fP instead.
+.TP
+.BI "Option \*qlistenfd\*q \*q" fd \*q
+adds the given fd as a listen socket.
+.TP
+.BI "Option \*qnoTouchPointerEmulation\*q \*q" boolean \*q
+inhibits touch pointer emulation. Default is disabled.
+.TP
+.BI "Option \*qforce\-xrandr\-emulation\*q \*q" boolean \*q
+forces additional non-native modes to be exposed when viewporter is not
+supported by the Wayland compositor. Default is disabled.
+.TP
+.BI "Option \*qnokeymap\*q \*q" boolean \*q
+instructs \fIXwayland\fP to ignore the keymap set by the Wayland compositor.
+Default is disabled.
+.TP
+.BI "Option \*qoutput\*q \*q" name \*q
+specifies on which output \fIXwayland\fP fullscreen rootful should be placed.
+.TP
+.BI "Option \*qrootless\*q \*q" boolean \*q
+activates rootless mode, so that X clients integrate seamlessly with
+Wayland clients in a Wayland desktop. Default is disabled.
+.TP
+.BI "Option \*qshm\*q \*q" boolean \*q
+forces the shared memory backend instead of glamor (if available) for
+passing buffers to the Wayland server. Cannot be used with \fBglamor\fP option.
+Default is disabled.
+.TP
+.BI "Option \*qverbose\*q \*q" n \*q
+sets the verbosity level for information printed on stderr. The default
+verbosity level is 0.
+.TP
+.BI "Option \*qwm\*q \*q" fd \*q
+is used by the Wayland server to pass \fIXwayland\fP the socket where the X
+window manager client connects, when the \fBrootless\fP option is enabled.
+.TP
+.B Option \*qOtherOptions\*q \*q\fIarg1\fP \fIarg2\fP ...\*q
+passes additional command line options to \fIXwslg\fP if specified. These
+may be any of the options listed in the output of 'Xwslg \fB\-help\fP'.
+.PP
+Examples:
+.PP
+.RS
+Set the \fB\-retro\fP option by default for all instances of \fIXwslg\fP:
+.PP
+.RS
+.nf
+.B "Section \*qVendor\*q"
+.B "    Option \*qOtherOptions\*q \*q\-retro\*q"
+.B "EndSection"
+.fi
+.RE
+.PP
+Set the window fullscreen with its geometry matching the physical monitor
+if \fIXwslg\fP was started by \fIxinit\fP(1) (i.e. \fIstartx\fP(1)):
+.PP
+.RS
+.nf
+.B "Section \*qVendor\*q"
+.B "    Identifier \*qxinit\*q"
+.B "    Option \*qfullscreen\*q"
+.B "    Option \*qgeometry\*q \*qauto\*q"
+.B "EndSection"
+.fi
+.RE
+.PP
+Apply the same settings for \fIxdm\fP(1) as for \fIxinit\fP:
+.PP
+.RS
+.nf
+.B "Section \*qVendor\*q"
+.B "    Identifier \*qxdm\*q"
+.B "    Option \*qExtend\*q \*qxinit\*q"
+.B "EndSection"
+.fi
+.RE
+.PP
+Apply the same settings for \fIlightdm\fP(1) as \fIxinit\fP, but also enable the
+\fBhidpi\fP option:
+.PP
+.RS
+.nf
+.B "Section \*qVendor\*q"
+.B "    Identifier \*qlightdm\*q"
+.B "    Option \*qExtend\*q \*qxinit\*q"
+.B "    Option \*qhidpi\*q"
+.B "EndSection"
+.fi
+.RE
+.RE
+.SH "NOTES"
+Special thanks to David Dawes \fI<dawes@xfree86.org>\fP, without whose work
+\fIxwslg.conf\fP and \fIXwslg\fP wouldn't be possible.
+.SH "SEE ALSO"
+\fIXorg\fP(1), \fIXserver\fP(1), \fIXwayland\fP(1), \fIXwslg\fP(1), \fIxorg.conf\fP(5)

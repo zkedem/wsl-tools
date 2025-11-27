@@ -1,0 +1,9 @@
+#!/bin/sh
+
+Xwslg -restore Xorg
+
+if [ -n "$(command -v systemctl)" ]
+then
+	systemctl disable keepwsl.service
+	systemctl disable wslg-fix.service
+fi

@@ -1,0 +1,59 @@
+#!/bin/sh
+
+b0="$(basename $0)"
+
+showhelp()
+{
+	cat <<EOF > /dev/stderr
+Usage: $b0 [-L lockfile] [-c] [-h] [-p pidfile] [command] [arguments...]
+
+	-L lockfile Single-instance checking using lock file
+	-c          Change daemon's working directory to /
+	-h          Show this help message
+	-p pidfile  Write the daemon's process ID to the given file
+EOF
+}
+
+while getopts 'L:chp:' o
+do
+	case "$o" in
+		p)
+			pidfile="$OPTARG"
+			;;
+		c)
+			changedir=0
+			;;
+		L)
+			lockfile="$OPTARG"
+			;;
+		?|h)
+			showhelp
+			exit 1
+			;;
+	esac
+done
+
+unset o
+
+if [ -z "$(eval "echo \${$OPTIND}")" ]
+then
+	echo 'You must specify a command to run as a daemon' > /dev/stderr
+	showhelp
+	exit 1
+fi
+
+[ -f "$lockfile" ] && exit
+setsid sh /dev/stdin <<EOF &
+$(
+	(exit ${changedir:-1}) && echo 'cd /'
+	echo 'umask 0'
+	for a in `seq $OPTIND $#`
+	do
+		eval "cmdline=\"\${cmdline:+\$cmdline }'\${$a}'\""
+	done
+	unset a
+	echo "$cmdline < /dev/null > /dev/null 2>&1 &"
+	[ -n "$pidfile" ] && echo "echo \$! > '$pidfile'"
+)
+EOF
+wait $!

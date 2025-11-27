@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -n "$(command -v systemctl)" ]
+then
+	systemctl daemon-reload
+fi

@@ -1,0 +1,478 @@
+#!/bin/sh
+
+getxconf()
+{
+	section=$(echo $2 | sed -E -e 's/^([^\.@]+)[\.@].*$/\1/')
+	for s in $(grep -E -i -n -e "^[[:space:]]*Section[[:space:]]+\"$section\"[[:space:]]*(#.*)?$" $1 | cut -d ':' -f 1)
+	do
+		starts="$s${starts:+ $starts}"
+	done
+	unset s
+	last=$((`echo $starts | tr -c -d ' ' | wc -m` + 1))
+	index=$((`echo ${3:-$last} | grep -E -e '^[0-9]+$'` + 0))
+	mode=$(echo $2 | cut -d '@' -f 2 -s)
+	subsection=$(echo $2 | cut -d '.' -f 2 -s)
+	if [ -n "$mode" ] || [ -n "$subsection" ]
+	then
+		show=1
+	fi
+	for s in $starts
+	do
+		instance=$((${instance:-$(($last + 1))} - 1))
+		if [ $index -eq 0 ]
+		then
+			show=1
+		elif [ $instance -ne $index ]
+		then
+			continue
+		fi
+		length=$((`tail -n +$(($s + 1)) $1 | grep -E -i -n -e '^[[:space:]]*EndSection[[:space:]]*(#.*)?$' | head -n 1 | cut -d ':' -f 1` - 1))
+		while read -r l
+		do
+			unset tokens
+			while [ ${#l} -gt 0 ]
+			do
+				end=${l#?}
+				char=${l%$end}
+				case $char in
+					'"')
+						notinquotes=$((!(${notinquotes:-0})))
+						tokens="$tokens$char"
+						;;
+					'#')
+						(exit $notinquotes) && break
+						tokens="$tokens$char"
+						;;
+					*)
+						tokens="$tokens$char"
+						;;
+				esac
+				unset char
+				l=$end
+			done
+			unset notinquotes
+			unset end
+			keyword=$(echo $tokens | cut -d ' ' -f 1 | tr -d _ | tr [:upper:] [:lower:])
+			params=$(echo $tokens | cut -d ' ' -f 2-)
+			paramn=$(echo $params | sed -E -e 's/^"(.*)"$/\1/')
+			param1=$(echo $params | cut -d ' ' -f 1 | tr -d '"')
+			unset tokens
+			case $keyword in
+				'')
+					continue
+					;;
+				endmode|endsubsection)
+					show=$((!($show)))
+					continue
+					;;
+				identifier)
+					case "$3" in
+						'')
+							index=$(($index - 1))
+							continue 2
+							;;
+						"$paramn")
+							if [ $index -eq 0 ]
+							then
+								if [ -z "$mode" ] && [ -z "$subsection" ]
+								then
+									show=0
+								fi
+								index=$instance
+							fi
+							;;
+						*)
+							[ $index -eq 0 ] && continue 2
+							;;
+					esac
+					;;
+				mode)
+					if [ "$section" != 'DRI' ]
+					then
+						hasmodes="${hasmodes:+$hasmodes }$param1"
+						if [ -n "$mode" ] && [ "$param1" = "$mode" ]
+						then
+							show=0
+							continue
+						else
+							show=1
+						fi
+					fi
+					;;
+				option)
+					if [ "$param1" = "$paramn" ]
+					then
+						params="$params \"1\""
+						paramn=$(echo $params | sed -E -e 's/^"(.*)"$/\1/')
+					fi
+					;;
+				subsection)
+					hassubsections="${hassubsections:+$hassubsections }$param1"
+					if [ -n "$subsection" ] && [ "$param1" = "$subsection" ]
+					then
+						show=0
+						continue
+					else
+						show=1
+					fi
+					;;
+			esac
+			! (exit $show) && continue
+			case $keyword in
+				clocks|fontpath|inputdevice|modulepath|outputdevice|screen|match*)
+					eval "_${keyword}_count=\$((\$_${keyword}_count + 1))"
+					if echo $params | grep -E -q -e "^\"$paramn\"$"
+					then
+						value=$paramn
+					else
+						value=$params
+					fi
+					eval "echo \"${keyword}_\$_${keyword}_count='\$value'\""
+					unset value
+					;;
+				option)
+					name=$(echo $params | sed -E -e 's/(^|[[:space:]]+)"(.*)"[[:space:]]+"(.*)"$/\2/' -e 's/[[:punct:] ]/_/g' | tr [:upper:] [:lower:])
+					value=$(echo $params | sed -E -e 's/(^|[[:space:]]+)"(.*)"[[:space:]]+"(.*)"$/\3/')
+					echo $value | grep -E -q -e '^0([0-7]+|[Xx]([0-9]|[A-F]|[a-f])+)$' && value=$(($value))
+					case $(echo $value | tr [:upper:] [:lower:]) in
+						'')
+							echo $params | grep -E -i -q -e '(^|[[:space:]]+)"(.*)"[[:space:]]+""$' || value=1
+							;;
+						off|false|no|disable)
+							value=0
+							;;
+						on|true|yes|enable)
+							value=1
+							;;
+					esac
+					echo "${keyword}_$name='$value'"
+					unset value
+					unset name
+					;;
+				*)
+					if echo $params | grep -E -q -e "^\"$paramn\"$"
+					then
+						echo "${keyword}='$paramn'"
+					else
+						echo "${keyword}='$params'"
+					fi
+					;;
+			esac
+			haskeywords=$(echo $haskeywords $keyword | tr ' ' "\n" | sort -u | tr "\n" ' ' | sed -E -e 's/ $//')
+			unset param1
+			unset paramn
+			unset params
+			unset keyword
+		done <<EOF
+$(tail -n +$(($s + 1)) $1 | head -n $length)
+EOF
+		if (exit $show) && [ -n "$haskeywords" ]
+		then
+			cat <<EOF
+_Index='$instance'
+_Instances='$last'
+_Keywords=\$(echo \$_Keywords $haskeywords | tr ' ' "\\n" | sort -u | tr "\\n" ' ' | sed -E -e 's/ $//')
+_Modes='$hasmodes'
+_Subsections='$hassubsections'
+_Cleanup()
+{
+	unset -f _Cleanup
+	for _V in \$(set | grep -E -e "^(\`echo \$_Keywords | tr ' ' '|'\`).*=" | cut -d = -f 1)
+	do
+		unset \$_V
+	done
+	unset _V
+	unset _Subsections
+	unset _Modes
+	unset _Keywords
+	unset _Instances
+	unset _Index
+}
+EOF
+		fi
+		for v in $(set | grep -E -e '^_.+_count=' | cut -d = -f 1)
+		do
+			unset $v
+		done
+		unset v
+		unset hassubsections
+		unset hasmodes
+		unset l
+		unset length
+	done
+	if [ -z "$starts" ] || [ $index -eq 0 ] || [ -z "$haskeywords" ]
+	then
+		cat <<EOF
+_Cleanup()
+{
+	unset -f _Cleanup
+}
+EOF
+	fi
+	unset haskeywords
+	unset instance
+	unset s
+	unset show
+	unset subsection
+	unset mode
+	unset index
+	unset last
+	unset starts
+	unset section
+}
+
+plusminus()
+{
+	echo $1 | sed -e 'y/01/-+/'
+}
+
+uid=$(id -u -r)
+run=exec
+r0=$(realpath $0)
+br0=$(basename $r0)
+ubr0=$(echo $br0 | tr [:lower:] [:upper:])
+lbr0=$(echo $br0 | tr [:upper:] [:lower:])
+nsubr0=$(echo $ubr0 | tr ' ' _)
+nslbr0=$(echo $lbr0 | tr ' ' _)
+
+for i in $(seq 1 $#)
+do
+	if ! (exit $isnext)
+	then
+		unset isnext
+		continue
+	fi
+	eval "arg1=\${$i}"
+	eval "arg2=\${$(($i + 1))}"
+	case "$arg1" in
+		-config)
+			config=$arg2
+			isnext=1
+			;;
+		-configdir)
+			configdir=$arg2
+			isnext=1
+			;;
+		-divert)
+			pathname=$(command -v -- "$arg2")
+			if [ -x "$pathname" ] && [ ! -L "$pathname" ]
+			then
+				mv "$pathname" "$pathname.diverted"
+				ln -s "$r0" "$pathname"
+			fi
+			exit
+			;;
+		-restore)
+			pathname=$(command -v -- "$arg2")
+			if [ -x "$pathname.diverted" ] && [ -L "$pathname" ] && [ "$(realpath "$pathname")" = "$r0" ]
+			then
+				rm -f "$pathname"
+				mv "$pathname.diverted" "$pathname"
+			fi
+			exit
+			;;
+		*)
+			args="${args:+$args }$arg1"
+			;;
+	esac
+done
+
+unset arg2
+unset arg1
+unset i
+hostname=$(uname -n)
+parentargs=$(ps -o args= -p $PPID)
+
+for j in $(seq 1 $((`echo $parentargs | tr -c -d ' ' | wc -m` + 1)))
+do
+	candidate=$(echo $parentargs | cut -d ' ' -f 1-$j)
+	if parentname=$(command -v -- "$candidate") || parentname=$(command -v -- "`echo $candidate | sed -E -e 's/^-//'`")
+	then
+		parentname=$(basename "$parentname")
+		break
+	fi
+done
+
+unset candidate
+unset j
+
+while read -r f
+do
+	[ -f "$f" ] || continue
+	. /dev/stdin <<EOF
+$(getxconf "$f" ServerFlags)
+EOF
+	[ -n "$option_blanktime" ] && opts="$opts -s $option_blanktime"
+	[ -n "$option_xinerama" ] && opts="$opts $(plusminus $option_xinerama)xinerama"
+	[ -n "$option_indirectglx" ] && opts="$opts $(plusminus $option_indirectglx)iglx"
+	_Cleanup
+	. /dev/stdin <<EOF
+$(getxconf "$f" Extensions)
+EOF
+	[ -n "$option_generic_event_extension" ] && opts="$opts $(plusminus $option_generic_event_extension)extension 'Generic Event Extension'"
+	[ -n "$option_xinputextension" ] && opts="$opts $(plusminus $option_xinputextension)extension XInputExtension"
+	[ -n "$option_xfree86_bigfont" ] && opts="$opts $(plusminus $option_xfree86_bigfont)extension XFree86-Bigfont"
+	[ -n "$option_present" ] && opts="$opts $(plusminus $option_present)extension Present"
+	[ -n "$option_x_resource" ] && opts="$opts $(plusminus $option_x_resource)extension X-Resource"
+	[ -n "$option_xvideo" ] && opts="$opts $(plusminus $option_xvideo)extension XVideo"
+	[ -n "$option_xvideo_motioncompensation" ] && opts="$opts $(plusminus $option_xvideo_motioncompensation)extension XVideo-MotionCompensation"
+	[ -n "$option_selinux" ] && opts="$opts $(plusminus $option_selinux)extension SELinux"
+	for o in $(set | grep -E -e '^option_.+=' | sed -E -e '/^.+_(generic_event_extension|x(inputextension|free86_bigfont|_resource|video(_motioncompensation)?)|present|selinux)=/d' | cut -d = -f 1)
+	do
+		eval "opts=\"\$opts \$(plusminus \${$o})extension \$(echo \$o | sed -E -e 's/^option_//' -e 's/_/-/g' | tr [:lower:] [:upper:])\""
+	done
+	unset o
+	_Cleanup
+	. /dev/stdin <<EOF
+$(
+	getxconf "$f" Vendor
+	getxconf "$f" Vendor "$parentname"
+)
+EOF
+	if [ -n "$option_extend" ]
+	then
+		allids="$identifier\n"
+		while [ -n "$option_extend" ]
+		do
+			while read -r e
+			do
+				[ "$e" != "$option_extend" ] || break 2
+			done <<EOF
+$(printf "$allids")
+EOF
+			extend="$option_extend"
+			_Cleanup
+			. /dev/stdin <<EOF
+$(getxconf "$f" Vendor "$extend")
+EOF
+			allids="$identifier\n$allids"
+		done
+		_Cleanup
+		while read -r e
+		do
+			. /dev/stdin <<EOF
+$(getxconf "$f" Vendor "$e")
+EOF
+		done <<EOF
+
+$(printf "$allids")
+EOF
+		unset e
+		unset extend
+		unset allids
+	fi
+	[ -n "$option_glamor" ] && opts="$opts $(echo $option_glamor | sed -E -e '/^(gl|es|0)$/!{/.*/d}' -e 's/^0$/off/' -e 's/(.+)/ -glamor \1/')"
+	[ ${option_notouchpointeremulation:-0} -eq 1 ] && opts="$opts -noTouchPointerEmulation"
+	for o in $(set | grep -E -e '^option_.+=' | sed -E -e '/^.+_(extend|glamor|notouchpointeremulation|otheroptions)=/d' -e 's/^option_//' | cut -d = -f 1)
+	do
+		if echo $o | grep -E -q -e '^(geometry|initfd|listen(fd)?|output|verbose|wm)$'
+		then
+			eval "[ -n \"\${option_$o}\" ] && opts=\"\$opts -\$(echo \$o | tr _ -) \${option_$o}\""
+		else
+			eval "[ \${option_$o} -eq 1 ] && opts=\"\$opts -\$(echo \$o | tr _ -)\""
+		fi
+	done
+	unset o
+	[ -n "$option_otheroptions" ] && opts="$opts $option_otheroptions"
+	_Cleanup
+done <<EOF
+$(
+	configenv="`eval echo\\ \\$\\{${nsubr0}CONFIG\\}`"
+	while read -r n
+	do
+		if [ -f "$n" ]
+		then
+			echo $n
+			exit
+		fi
+	done <<EOF1
+`
+	for h in "$config" "$configenv"
+	do
+		if [ -n "$h" ]
+		then
+			[ $uid -eq 0 ] && echo $h
+			echo /etc/X11/$h
+			echo /usr/etc/X11/$h
+		fi
+	done
+	echo /etc/X11/$lbr0.conf
+`
+/etc/$lbr0.conf
+/usr/etc/X11/$lbr0.conf.$hostname
+/usr/etc/X11/$lbr0.conf
+/usr/lib/X11/$lbr0.conf.$hostname
+/usr/lib/X11/$lbr0.conf
+EOF1
+	while read -r d
+	do
+		if [ -d "$d" ]
+		then
+			for n in "$d"/*
+			do
+				echo $n
+			done
+			exit
+		fi
+	done <<EOF1
+`
+	if [ -n "$configdir" ]
+	then
+		[ $uid -eq 0 ] && echo $configdir
+		echo /etc/X11/$configdir
+		echo /usr/etc/X11/$configdir
+	fi
+	echo /etc/X11/$lbr0.conf.d
+`
+/usr/etc/X11/$lbr0.conf.d
+EOF1
+	for n in /usr/share/X11/"$lbr0".conf.d/*
+	do
+		echo $n
+	done
+)
+EOF
+
+args=$(echo $opts $args | sed -E -e "s/vt([0-9]+)/tty\1/g" -e "s/-(keeptty|novtswitch)//g")
+unset opts
+unset f
+echo $args | grep -E -q -e '(^|[[:space:]])-help([[:space:]]|$)' && unset run
+display=$(echo $args | grep -E -o -e '(^|[[:space:]]):[0-9]+([[:space:]]|$)' | tail -n 1 | tr -c -d [:digit:])
+display=${display:-0}
+
+while true
+do
+	[ -e "/tmp/.X$display-lock" ] || [ -S "/tmp/.X11-unix/X$display" ] || break
+	display=$(($display + 1))
+done
+
+args=$(echo $args | sed -E -e 's/(^|[[:space:]])\:[0-9]+([[:space:]]|$)/\1\2/g')
+args=":$display $args"
+
+if echo $args | grep -E -q -e '(^|[[:space:]])-geometry[[:space:]]+auto([[:space:]]|$)'
+then
+	. /dev/stdin <<EOF
+$(/mnt/*/Windows/System32/wbem/WMIC.exe PATH Win32_VideoController GET CurrentHorizontalResolution,CurrentVerticalResolution /format:list | tr -d "\r")
+EOF
+	args=$(echo $args | sed -E -e "s/(^|[[:space:]])(-geometry)[[:space:]]+auto([[:space:]]|$)/\1\2 ${CurrentHorizontalResolution}x${CurrentVerticalResolution}\3/g")
+	unset CurrentVerticalResolution
+	unset CurrentHorizontalResolution
+fi
+
+if [ -n "$run" ] && [ ! -d "$HOME/runtime-dir" ]
+then
+	mkdir "$HOME/runtime-dir"
+	ln -s /mnt/wslg/runtime-dir/wayland-0 /mnt/wslg/runtime-dir/wayland-0.lock "$HOME/runtime-dir/"
+fi
+
+export XDG_RUNTIME_DIR="$HOME/runtime-dir"
+$run Xwayland $args
+cat <<EOF > /dev/stderr
+-config file           specify a configuration file, relative to the
+                       $lbr0.conf search path, only root can use absolute
+-configdir dir         specify a configuration directory, relative to the
+                       $lbr0.conf.d search path, only root can use absolute
+-divert cmd            divert command (usually an X server) to $br0
+-geometry auto         automatically set Xwayland window size to fill screen when rootful
+-restore cmd           restore command previously diverted to $br0
+EOF

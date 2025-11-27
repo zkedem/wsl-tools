@@ -1,0 +1,262 @@
+.\" Created with help from help2man.
+.TH WSL 1 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+wsl \- launches WSL instance from within WSL
+.SH SYNOPSIS
+.B wsl
+[\fI\,Argument\/\fP] [\fI\,Options\/\fP...] [\fI\,CommandLine\/\fP]
+.SH DESCRIPTION
+The Windows Subsystem for Linux (WSL) enables Linux programs to run on
+Windows under a virtualized Linux operating system. WSL is invoked and
+managed using the \fIwsl.exe\fP command in Windows. At times, it may be
+advantageous to manage/invoke WSL from within WSL itself. The \fIwsl\fP command
+is a wrapper script that calls Windows' \fIwsl.exe\fP for this purpose.
+.SH OPTIONS
+The options described here are largely the same as for \fIwsl.exe\fP under
+Windows, with a few extra. Under WSL, most of these options are
+unavailable for regular users, apart from \fB\-\-list\fP, \fB\-\-status\fP, and
+\fB\-\-version\fP; otherwise, it would be possible to run commands as
+root without entering a password. Any file path arguments must be Windows
+paths. These options may be reviewed at any time using 'wsl \fB\-\-help\fP'.
+.SS "Arguments for running Linux binaries:"
+If no command line is provided, \fIwsl\fP launches the default shell.
+.TP
+\fB\-\-exec\fP, \fB\-e\fP <CommandLine>
+Execute the specified command without using the default Linux shell.
+.TP
+\fB\-\-shell\-type\fP <standard|login|none>
+Execute the specified command with the provided shell type.
+.TP
+\fB\-\-\fP
+Pass the remaining command line as\-is.
+.SS "Options:"
+.TP
+\fB\-\-cd\fP <Directory>
+Sets the specified directory as the current working directory.
+If \(ti is used the Linux user's home path will be used. If the path begins
+with a / character, it will be interpreted as an absolute Linux path.
+Otherwise, the value must be an absolute Windows path.
+.TP
+\fB\-\-distribution\fP, \fB\-d\fP <DistroName>
+Run the specified distribution.
+.TP
+\fB\-\-distribution\-id\fP <DistroGuid>
+Run the specified distribution ID.
+.TP
+\fB\-\-user\fP, \fB\-u\fP <UserName>
+Run as the specified user.
+.TP
+\fB\-\-system\fP
+Launches a shell for the system distribution.
+.SS "Arguments for managing Windows Subsystem for Linux:"
+.TP
+\fB\-\-help\fP
+Display usage information.
+.TP
+\fB\-\-debug\-shell\fP
+Open a WSL2 debug shell for diagnostics purposes.
+.TP
+\fB\-\-install\fP [Distro] [Options...]
+Install a Windows Subsystem for Linux distribution.
+For a list of valid distributions, use 'wsl \fB\-\-list\fP \fB\-\-online\fP'.
+Options:
+.RS
+.TS
+l l.
+.TP
+\fB\-\-enable\-wsl1\fP
+Enable WSL1 support.
+.TP
+\fB\-\-fixed\-vhd\fP
+Create a fixed\-size disk to store the distribution.
+.TP
+\fB\-\-from\-file\fP <Path>
+Install a distribution from a local file.
+.TP
+\fB\-\-legacy\fP
+Use the legacy distribution manifest.
+.TP
+\fB\-\-location\fP <Location>
+Set the install path for the distribution.
+.TP
+\fB\-\-name\fP <Name>
+Set the name of the distribution.
+.TP
+\fB\-\-no\-distribution\fP
+Only install the required optional components, does not install a
+distribution.
+.TP
+\fB\-\-no\-launch\fP, \fB\-n\fP
+Do not launch the distribution after install.
+.TP
+\fB\-\-version\fP <Version>
+Specifies the version to use for the new distribution.
+.TP
+\fB\-\-vhd\-size\fP <MemoryString>
+Specifies the size of the disk to store the distribution.
+.TP
+\fB\-\-web\-download\fP
+Download the distribution from the internet instead of the Microsoft
+Store.
+.TE
+.RE
+.TP
+\fB\-\-manage\fP <Distro> <Options...>
+Changes distro specific options.
+Options:
+.RS
+.TS
+l l.
+.TP
+\fB\-\-move\fP <Location>
+Move the distribution to a new location.
+.TP
+\fB\-\-set\-sparse\fP, \fB\-s\fP <true|false>
+Set the vhdx of distro to be sparse, allowing disk space to be
+automatically reclaimed.
+.TP
+\fB\-\-set\-default\-user\fP <Username>
+Set the default user of the distribution.
+.TP
+\fB\-\-resize\fP <MemoryString>
+Resize the disk of the distribution to the specified size.
+.TE
+.RE
+.TP
+\fB\-\-mount\fP <Disk>
+Attaches and mounts a physical or virtual disk in all WSL 2 distributions.
+Options:
+.RS
+.TS
+l l.
+.TP
+\fB\-\-vhd\fP
+Specifies that <Disk> refers to a virtual hard disk.
+.TP
+\fB\-\-bare\fP
+Attach the disk to WSL2, but don't mount it.
+.TP
+\fB\-\-name\fP <Name>
+Mount the disk using a custom name for the mountpoint.
+.TP
+\fB\-\-type\fP <Type>
+Filesystem to use when mounting a disk, if not specified defaults to ext4.
+.TP
+\fB\-\-options\fP <Options>
+Additional mount options.
+.TP
+\fB\-\-partition\fP <Index>
+Index of the partition to mount, if not specified defaults to the whole
+disk.
+.TE
+.RE
+.TP
+\fB\-\-set\-default\-version\fP <Version>
+Changes the default install version for new distributions.
+.TP
+\fB\-\-shutdown\fP
+Immediately terminates all running distributions and the WSL 2
+lightweight utility virtual machine.
+.TP
+\fB\-\-status\fP
+Show the status of Windows Subsystem for Linux.
+.TP
+\fB\-\-unmount\fP [Disk]
+Unmounts and detaches a disk from all WSL2 distributions.
+Unmounts and detaches all disks if called without argument.
+.TP
+\fB\-\-uninstall\fP
+Uninstalls the Windows Subsystem for Linux package from this machine.
+.TP
+\fB\-\-update\fP
+Update the Windows Subsystem for Linux package.
+Options:
+.RS
+.TS
+l l.
+.TP
+\fB\-\-pre\-release\fP
+Download a pre\-release version if available.
+.TE
+.RE
+.TP
+\fB\-\-version\fP, \fB\-v\fP
+Display version information.
+.SS "Arguments for managing distributions in Windows Subsystem for Linux:"
+.TP
+\fB\-\-export\fP <Distro> <FileName> [Options]
+Exports the distribution to a tar file.
+The filename can be \- for stdout.
+Options:
+.RS
+.TS
+l l.
+.TP
+\fB\-\-format\fP <Format>
+Specifies the export format. Supported values: tar, tar.gz, tar.xz, vhd.
+.TE
+.RE
+.TP
+\fB\-\-import\fP <Distro> <InstallLocation> <FileName> [Options]
+Imports the specified tar file as a new distribution.
+The filename can be \- for stdin.
+Options:
+.RS
+.TS
+l l.
+.TP
+\fB\-\-version\fP <Version>
+Specifies the version to use for the new distribution.
+.TP
+\fB\-\-vhd\fP
+Specifies that the provided file is a .vhdx file, not a tar file.
+This operation makes a copy of the .vhdx file at the specified install
+location.
+.TE
+.RE
+.TP
+\fB\-\-import\-in\-place\fP <Distro> <FileName>
+Imports the specified .vhdx file as a new distribution.
+This virtual hard disk must be formatted with the ext4 filesystem type.
+.TP
+\fB\-\-list\fP, \fB\-l\fP [Options]
+Lists distributions.
+Options:
+.RS
+.TS
+l l.
+.TP
+\fB\-\-all\fP
+List all distributions, including distributions that are
+currently being installed or uninstalled.
+.TP
+\fB\-\-running\fP
+List only distributions that are currently running.
+.TP
+\fB\-\-quiet\fP, \fB\-q\fP
+Only show distribution names.
+.TP
+\fB\-\-verbose\fP, \fB\-v\fP
+Show detailed information about all distributions.
+.TP
+\fB\-\-online\fP, \fB\-o\fP
+Displays a list of available distributions for install with 'wsl
+\fB\-\-install\fP'.
+.TE
+.RE
+.TP
+\fB\-\-set\-default\fP, \fB\-s\fP <Distro>
+Sets the distribution as the default.
+.TP
+\fB\-\-set\-version\fP <Distro> <Version>
+Changes the version of the specified distribution.
+.TP
+\fB\-\-terminate\fP, \fB\-t\fP <Distro>
+Terminates the specified distribution.
+.TP
+\fB\-\-unregister\fP <Distro>
+Unregisters the distribution and deletes the root filesystem.
+.SS "Additional options:"
+.TP
+\fB\-\-this\-distribution\fP
+Run the current distribution.

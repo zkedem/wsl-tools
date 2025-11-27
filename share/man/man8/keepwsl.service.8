@@ -1,0 +1,22 @@
+.TH KEEPWSL.SERVICE 8 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+keepwsl.service \- keep WSL alive
+.SH SYNOPSIS
+.B keepwsl.service
+.SH DESCRIPTION
+The Windows Subsystem for Linux (WSL) has a feature where it automatically
+shuts down if there are no console windows in the foreground and there are
+no background processes that are not managed by systemd. While this often
+can help in conserving energy and system resources, it gets in the way of
+running graphical applications and desktop environments on WSL.
+\fIkeepwsl.service\fP circumvents this feature by using the \fIwsl\fP(1) wrapper
+script to create a low-intensity, perpetual background process whenever a
+graphical session is active. This means that, if \fIkeepwsl.service\fP is
+enabled, it activates automatically whenever the systemd graphical target
+is active.
+.PP
+If you have installed @NAME@ from your package manager, \fIkeepwsl.service\fP
+will not be enabled by default. If you wish to use desktop environments on
+WSL, you may enable it using 'systemctl \fBenable\fP keepwsl.service'.
+.SH "SEE ALSO"
+\fIwsl\fP(1), \fIwsl\-tools\-services\fP(8)

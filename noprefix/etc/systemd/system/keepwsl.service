@@ -1,0 +1,11 @@
+[Unit]
+Description=Keep WSL
+
+[Service]
+Type=simple
+ExecStart=/bin/env wsl --this-distribution --user root --exec sleep 2147483647
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=graphical.target
