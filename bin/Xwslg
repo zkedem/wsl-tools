@@ -488,6 +488,7 @@ EOF
 		unset CurrentHorizontalResolution
 	elif ! echo $args | grep -E -q -e '(^|[[:space:]])-rootless([[:space:]]|$)'
 	then
+		args=$(echo $args | sed -E -e "s/(^|[[:space:]])(-fullscreen)([[:space:]]|$)/\3/g")
 		daemonify Bring-XToFront.ps1
 	fi
 	if [ ! -d "$HOME/runtime-dir" ]

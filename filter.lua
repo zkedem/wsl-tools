@@ -1,12 +1,19 @@
+--[[
+	This script is used to format documentation files.
+	It is not part of the wsl-tools installation.
+]]
+
 function Inlines(all)
 	local new_inlines = {table.unpack(all)}
 	for k, v in pairs(new_inlines) do
-		if v.t == "Emph" then
+		if v.t == "Str" and v.text:match("[@~]") then
+			new_inlines[k] = pandoc.RawInline(FORMAT, v.text:gsub("([@~])", "<span>%1</span>"))
+		elseif v.t == "Emph" then
 			local em = "_"
 			if k > 1 and new_inlines[k - 1].t == "Str" and new_inlines[k - 1].text:match("[\"[{]$") or v.c[1].text:match("^<") then
 				em = "*"
 			end
-			new_inlines[k] = pandoc.RawInline(FORMAT, em .. v.c[1].text:gsub("([<>])", "\\%1") .. em)
+			new_inlines[k] = pandoc.RawInline(FORMAT, em .. v.c[1].text:gsub("([<>])", "\\%1"):gsub("\\(<)(/?)(span)\\(>)", "%1%2%3%4") .. em)
 		end
 	end
 	return new_inlines

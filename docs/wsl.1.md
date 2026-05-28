@@ -42,8 +42,8 @@ Pass the remaining command line as-is.
 
 **--cd** \<_Directory_\>  
 Sets the specified directory as the current working directory.  
-If ~ is used the Linux user's home path will be used. If the path
-begins  
+If <span>~</span> is used the Linux user's home path will be used. If
+the path begins  
 with a / character, it will be interpreted as an absolute Linux path.  
 Otherwise, the value must be an absolute Windows path.
 

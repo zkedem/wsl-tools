@@ -30,7 +30,7 @@ can run '**Xwslg -divert Xorg**'.
 
 The original command will still be available as '_cmd_.diverted'.
 
-**-parse** _section_\[**.**_subsection_\|**@**_mode_\] \[*id*\]  
+**-parse** _section_\[**.**_subsection_\|**<span>@</span>**_mode_\] \[*id*\]  
 Parse a configuration file specified with the **-config** option, then
 exit. This dumps **Xwslg**'s internal parser model of the given section
 of the file to standard output, which can be useful for debugging.
@@ -41,10 +41,10 @@ either a number or the value of an **Identifier** entry (see the
 
 Subsections and modes within a section instance can also be dumped.
 Subsections can be selected with a period (**.**), and modes can be
-selected with a commercial at (**@**). For instance,
+selected with a commercial at (**<span>@</span>**). For instance,
 '**Screen.Display**' dumps the **Display** subsection of a **Screen**
-section, and '**Monitor@1920x1080_60**' dumps the **1920x1080_60** mode
-description from a **Monitor** section.
+section, and '**Monitor<span>@</span>1920x1080_60**' dumps the
+**1920x1080_60** mode description from a **Monitor** section.
 
 **-restore** _cmd_  
 Restore a command previously diverted to **Xwslg** with the **-divert**

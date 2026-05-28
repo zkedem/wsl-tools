@@ -148,7 +148,7 @@ causes the command to be executed.
 Sets the working directory at the start of PowerShell given a valid
 PowerShell directory path.  
 Executing \`**Set-Location -LiteralPath** *\<path\>*\` at startup.  
-Example: **pwsh -WorkingDirectory ~**
+Example: **pwsh -WorkingDirectory <span>~</span>**
 
 **-Help**, **-?**, **/?**  
 Displays a help message describing the options in this section.

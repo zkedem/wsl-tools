@@ -364,8 +364,8 @@ by **xinit**(1) (i.e. **startx**(1)):
 
 # NOTES
 
-Special thanks to David Dawes *\<dawes@xfree86.org\>*, without whose
-work _xwslg.conf_ and **Xwslg** wouldn't be possible.
+Special thanks to David Dawes *\<dawes<span>@</span>xfree86.org\>*,
+without whose work _xwslg.conf_ and **Xwslg** wouldn't be possible.
 
 # SEE ALSO
 
