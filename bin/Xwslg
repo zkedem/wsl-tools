@@ -18,7 +18,7 @@ getxconf()
 	fi
 	for s in $starts
 	do
-		instance=$((${instance:-$(($last + 1))} - 1))
+		instance=$((${instance:-$((last + 1))} - 1))
 		if [ $index -eq 0 ]
 		then
 			show=1
@@ -26,7 +26,7 @@ getxconf()
 		then
 			continue
 		fi
-		length=$((`tail -n +$(($s + 1)) $1 | grep -E -i -n -e '^[[:space:]]*EndSection[[:space:]]*(#.*)?$' | head -n 1 | cut -d ':' -f 1` - 1))
+		length=$((`tail -n +$((s + 1)) $1 | grep -E -i -n -e '^[[:space:]]*EndSection[[:space:]]*(#.*)?$' | head -n 1 | cut -d ':' -f 1` - 1))
 		while read -r l
 		do
 			unset tokens
@@ -68,7 +68,7 @@ getxconf()
 				identifier)
 					case "$3" in
 						'')
-							index=$(($index - 1))
+							index=$((index - 1))
 							continue 2
 							;;
 						"$paramn")
@@ -82,7 +82,7 @@ getxconf()
 							fi
 							;;
 						*)
-							[ $index -eq 0 ] && continue 2
+							[ $index -ne 0 ] || continue 2
 							;;
 					esac
 					;;
@@ -100,7 +100,7 @@ getxconf()
 					fi
 					;;
 				option)
-					if [ "$param1" = "$paramn" ]
+					if echo $paramn | sed -E -e 's/^([^"]+)(" ".*)?$/\1/' | grep -E -q -e "^$paramn$"
 					then
 						params="$params \"1\""
 						paramn=$(echo $params | sed -E -e 's/^"(.*)"$/\1/')
@@ -131,9 +131,9 @@ getxconf()
 					unset value
 					;;
 				option)
-					name=$(echo $params | sed -E -e 's/(^|[[:space:]]+)"(.*)"[[:space:]]+"(.*)"$/\2/' -e 's/[[:punct:] ]/_/g' | tr [:upper:] [:lower:])
+					name=$(echo $params | sed -E -e 's/(^|[[:space:]]+)"(.*)"[[:space:]]+"(.*)"$/\2/' -e 's/[ _]//g' -e 's/[[:punct:]]/_/g' | tr [:upper:] [:lower:])
 					value=$(echo $params | sed -E -e 's/(^|[[:space:]]+)"(.*)"[[:space:]]+"(.*)"$/\3/')
-					echo $value | grep -E -q -e '^0([0-7]+|[Xx]([0-9]|[A-F]|[a-f])+)$' && value=$(($value))
+					echo $value | grep -E -q -e '^0([0-7]+|[Xx][[:xdigit:]]+)$' && value=$((value))
 					case $(echo $value | tr [:upper:] [:lower:]) in
 						'')
 							echo $params | grep -E -i -q -e '(^|[[:space:]]+)"(.*)"[[:space:]]+""$' || value=1
@@ -146,6 +146,12 @@ getxconf()
 							;;
 					esac
 					echo "${keyword}_$name='$value'"
+					case $value in
+						0|1)
+							echo $name | grep -E -q -e '^no' && echo "${keyword}_$(echo $name | sed -E -e 's/^no//')='$((!(value)))'"
+							echo "${keyword}_no$name='$((!(value)))'"
+							;;
+					esac
 					unset value
 					unset name
 					;;
@@ -164,7 +170,7 @@ getxconf()
 			unset params
 			unset keyword
 		done <<EOF
-$(tail -n +$(($s + 1)) $1 | head -n $length)
+$(tail -n +$((s + 1)) $1 | head -n $length)
 EOF
 		if (exit $show) && [ -n "$haskeywords" ]
 		then
@@ -226,6 +232,11 @@ plusminus()
 	echo $1 | sed -e 'y/01/-+/'
 }
 
+hasfeature()
+{
+	strings -n 1 $(command -v Xwayland) | grep -E -q -e "^${1}$"
+}
+
 uid=$(id -u -r)
 run=exec
 r0=$(realpath $0)
@@ -234,24 +245,26 @@ ubr0=$(echo $br0 | tr [:lower:] [:upper:])
 lbr0=$(echo $br0 | tr [:upper:] [:lower:])
 nsubr0=$(echo $ubr0 | tr ' ' _)
 nslbr0=$(echo $lbr0 | tr ' ' _)
+argn=0
 
 for i in $(seq 1 $#)
 do
-	if ! (exit $isnext)
+	if [ $argn -gt 0 ]
 	then
-		unset isnext
+		argn=$((argn - 1))
 		continue
 	fi
 	eval "arg1=\${$i}"
-	eval "arg2=\${$(($i + 1))}"
+	eval "arg2=\${$((i + 1))}"
+	eval "arg3=\${$((i + 2))}"
 	case "$arg1" in
 		-config)
 			config=$arg2
-			isnext=1
+			argn=1
 			;;
 		-configdir)
 			configdir=$arg2
-			isnext=1
+			argn=1
 			;;
 		-divert)
 			pathname=$(command -v -- "$arg2")
@@ -260,6 +273,11 @@ do
 				mv "$pathname" "$pathname.diverted"
 				ln -s "$r0" "$pathname"
 			fi
+			exit
+			;;
+		-parse)
+			[ -n "$config" ] || exit 1
+			getxconf "$config" "$arg2" "$arg3"
 			exit
 			;;
 		-restore)
@@ -277,9 +295,11 @@ do
 	esac
 done
 
+unset arg3
 unset arg2
 unset arg1
 unset i
+unset argn
 hostname=$(uname -n)
 parentargs=$(ps -o args= -p $PPID)
 
@@ -309,7 +329,7 @@ EOF
 	. /dev/stdin <<EOF
 $(getxconf "$f" Extensions)
 EOF
-	[ -n "$option_generic_event_extension" ] && opts="$opts $(plusminus $option_generic_event_extension)extension 'Generic Event Extension'"
+	[ -n "$option_genericeventextension" ] && opts="$opts $(plusminus $option_genericeventextension)extension 'Generic Event Extension'"
 	[ -n "$option_xinputextension" ] && opts="$opts $(plusminus $option_xinputextension)extension XInputExtension"
 	[ -n "$option_xfree86_bigfont" ] && opts="$opts $(plusminus $option_xfree86_bigfont)extension XFree86-Bigfont"
 	[ -n "$option_present" ] && opts="$opts $(plusminus $option_present)extension Present"
@@ -317,7 +337,7 @@ EOF
 	[ -n "$option_xvideo" ] && opts="$opts $(plusminus $option_xvideo)extension XVideo"
 	[ -n "$option_xvideo_motioncompensation" ] && opts="$opts $(plusminus $option_xvideo_motioncompensation)extension XVideo-MotionCompensation"
 	[ -n "$option_selinux" ] && opts="$opts $(plusminus $option_selinux)extension SELinux"
-	for o in $(set | grep -E -e '^option_.+=' | sed -E -e '/^.+_(generic_event_extension|x(inputextension|free86_bigfont|_resource|video(_motioncompensation)?)|present|selinux)=/d' | cut -d = -f 1)
+	for o in $(set | grep -E -e '^option_.+=' | sed -E -e '/^.+_(genericeventextension|x(inputextension|free86_bigfont|_resource|video(_motioncompensation)?)|present|selinux|no.*)=/d' | cut -d = -f 1)
 	do
 		eval "opts=\"\$opts \$(plusminus \${$o})extension \$(echo \$o | sed -E -e 's/^option_//' -e 's/_/-/g' | tr [:lower:] [:upper:])\""
 	done
@@ -362,16 +382,19 @@ EOF
 		unset allids
 	fi
 	[ -n "$option_glamor" ] && opts="$opts $(echo $option_glamor | sed -E -e '/^(gl|es|0)$/!{/.*/d}' -e 's/^0$/off/' -e 's/(.+)/ -glamor \1/')"
+	[ ${option_nokeymap:-0} -eq 1 ] && opts="$opts -nokeymap"
 	[ ${option_notouchpointeremulation:-0} -eq 1 ] && opts="$opts -noTouchPointerEmulation"
-	for o in $(set | grep -E -e '^option_.+=' | sed -E -e '/^.+_(extend|glamor|notouchpointeremulation|otheroptions)=/d' -e 's/^option_//' | cut -d = -f 1)
+	while read -r o
 	do
-		if echo $o | grep -E -q -e '^(geometry|initfd|listen(fd)?|output|verbose|wm)$'
+		if echo $o | grep -E -q -e '^(geometry|wm|initfd|listen(fd)?)$'
 		then
 			eval "[ -n \"\${option_$o}\" ] && opts=\"\$opts -\$(echo \$o | tr _ -) \${option_$o}\""
 		else
-			eval "[ \${option_$o} -eq 1 ] && opts=\"\$opts -\$(echo \$o | tr _ -)\""
+			eval "[ \${option_$o:-0} -eq 1 ] && opts=\"\$opts -\$(echo \$o | tr _ -)\""
 		fi
-	done
+	done <<EOF
+$(set | grep -E -e '^option_.+=' | sed -E -e '/^.+_(extend|glamor|keymap|no.*|otheroptions|touchpointeremulation)=/d' -e 's/^option_//' | cut -d = -f 1)
+EOF
 	unset o
 	[ -n "$option_otheroptions" ] && opts="$opts $option_otheroptions"
 	_Cleanup
@@ -442,37 +465,48 @@ display=${display:-0}
 
 while true
 do
-	[ -e "/tmp/.X$display-lock" ] || [ -S "/tmp/.X11-unix/X$display" ] || break
-	display=$(($display + 1))
+	[ -e "/tmp/.X11-unix/X$display" ] || break
+	display=$((display + 1))
 done
 
 args=$(echo $args | sed -E -e 's/(^|[[:space:]])\:[0-9]+([[:space:]]|$)/\1\2/g')
 args=":$display $args"
 
-if echo $args | grep -E -q -e '(^|[[:space:]])-geometry[[:space:]]+auto([[:space:]]|$)'
+if [ -n "$run" ]
 then
-	. /dev/stdin <<EOF
+	if ! hasfeature -geometry && echo $args | grep -E -q -e '(^|[[:space:]])-geometry([[:space:]]|$)'
+	then
+		args=$(echo $args | sed -E -e "s/(^|[[:space:]])(-geometry)([[:space:]]|$)/\3/g")
+	fi
+	if hasfeature -fullscreen && echo $args | grep -E -q -e '(^|[[:space:]])-fullscreen([[:space:]]|$)'
+	then
+		. /dev/stdin <<EOF
 $(/mnt/*/Windows/System32/wbem/WMIC.exe PATH Win32_VideoController GET CurrentHorizontalResolution,CurrentVerticalResolution /format:list | tr -d "\r")
 EOF
-	args=$(echo $args | sed -E -e "s/(^|[[:space:]])(-geometry)[[:space:]]+auto([[:space:]]|$)/\1\2 ${CurrentHorizontalResolution}x${CurrentVerticalResolution}\3/g")
-	unset CurrentVerticalResolution
-	unset CurrentHorizontalResolution
+		args=$(echo $args | sed -E -e "s/(^|[[:space:]])(-fullscreen)([[:space:]]|$)/\1\2 -geometry ${CurrentHorizontalResolution}x${CurrentVerticalResolution}\3/g")
+		unset CurrentVerticalResolution
+		unset CurrentHorizontalResolution
+	elif ! echo $args | grep -E -q -e '(^|[[:space:]])-rootless([[:space:]]|$)'
+	then
+		daemonify Bring-XToFront.ps1
+	fi
+	if [ ! -d "$HOME/runtime-dir" ]
+	then
+		mkdir "$HOME/runtime-dir"
+		ln -s /mnt/wslg/runtime-dir/wayland-0 /mnt/wslg/runtime-dir/wayland-0.lock "$HOME/runtime-dir/"
+	fi
+	export XDG_RUNTIME_DIR="$HOME/runtime-dir"
 fi
 
-if [ -n "$run" ] && [ ! -d "$HOME/runtime-dir" ]
-then
-	mkdir "$HOME/runtime-dir"
-	ln -s /mnt/wslg/runtime-dir/wayland-0 /mnt/wslg/runtime-dir/wayland-0.lock "$HOME/runtime-dir/"
-fi
-
-export XDG_RUNTIME_DIR="$HOME/runtime-dir"
 $run Xwayland $args
-cat <<EOF > /dev/stderr
+cat <<EOF >&2
 -config file           specify a configuration file, relative to the
                        $lbr0.conf search path, only root can use absolute
 -configdir dir         specify a configuration directory, relative to the
                        $lbr0.conf.d search path, only root can use absolute
 -divert cmd            divert command (usually an X server) to $br0
--geometry auto         automatically set Xwayland window size to fill screen when rootful
+-parse section [id]    parse a configuration file specified with -config;
+                       useful for debugging; id can be a number or the value of
+                       an Identifier entry
 -restore cmd           restore command previously diverted to $br0
 EOF

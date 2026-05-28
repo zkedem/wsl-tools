@@ -1,0 +1,25 @@
+.TH BRING-XTOFRONT.PS1 1 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+Bring\-XToFront.ps1 \- Brings X server to front
+.SH SYNOPSIS
+.B Bring\-XToFront.ps1
+.SH DESCRIPTION
+\fBBring\-XToFront.ps1\fP is a Windows PowerShell script that is used by
+\fBXwslg\fP(1) to bring the root window into focus, place it at the front
+of the window stack, and hide the taskbar so that the X session fills the
+entire screen. It is only used if the system's version of
+\fBXwayland\fP(1) does not support the \fB\-fullscreen\fP or
+\fB\-geometry\fP options and wants to open a fullscreen root window by
+default.
+.PP
+\fBXwslg\fP will use \fBdaemonify\fP(1) to run \fBBring\-XToFront.ps1\fP
+as a daemon when it launches in rootful mode, and
+\fBBring\-XToFront.ps1\fP will quit automatically once \fBXwslg\fP has
+fully started up. \fBXwslg\fP never calls \fBBring\-XToFront.ps1\fP when
+it runs in rootless mode. There is no need for an ordinary user to invoke
+\fBBring\-XToFront.ps1\fP manually.
+.SH "SEE ALSO"
+.BR Xwayland (1),
+.BR Xwslg (1),
+.BR daemonify (1),
+.BR powershell (1)

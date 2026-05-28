@@ -5,11 +5,15 @@ include pkginfo.mk
 ARCHITECTURE = all
 BUILDDIR = build
 STAGINGDIR = staging
-DOCDIR = share/info,share/man
+DOCSDIR = docs
+MANDIR = share/info,share/man
+LUAFILTER = filter.lua
 PREFIX = /usr/local
 
 all:
 	true
+
+.PHONY: docs
 
 clean:
 	for d in '$(BUILDDIR)' '$(STAGINGDIR)'; \
@@ -22,18 +26,50 @@ clean:
 		rm -rf "$$d"; \
 	done
 
+docs:
+	if [ -z `command -v pandoc` ]; \
+	then \
+		echo 'pandoc is required' >&2; \
+		exit 1; \
+	fi; \
+	if [ ! -d '$(DOCSDIR)' ]; \
+	then \
+		mkdir -p '$(DOCSDIR)'; \
+	fi; \
+	echo '$(MANDIR)' | tr , "\n" | while read -r d; \
+	do \
+		if [ -d "$$d" ]; \
+		then \
+			find "$$d" -type f | while read -r f; \
+			do \
+				cat "$$f" | preprocess -e - NAME='$(NAME)' VERSION='$(VERSION)' DATE="`gitchangelog -D '%Y-%m-%d' -r '$(REPO_URL)' -t -v '$(VERSION)'`" | pandoc -f man -t gfm -o "$(DOCSDIR)/`basename "$$f"`.md" --lua-filter '$(LUAFILTER)'; \
+			done; \
+		fi; \
+	done
+
+clean_docs:
+	if [ -d '$(DOCSDIR)' ]; \
+	then \
+		rm '$(DOCSDIR)'/*; \
+	fi
+
 install:
 	for f in *; \
 	do \
 		if [ -d "$$f" ]; \
 		then \
 			case "$$f" in \
-				.|..|'$(BUILDDIR)'|noprefix|'$(STAGINGDIR)'|"`basename "$(ROOTDIR)"`") \
+				.|..|'$(BUILDDIR)'|'$(DOCSDIR)'|noprefix|'$(STAGINGDIR)'|"`basename "$(ROOTDIR)"`") \
 					continue; \
 					;; \
 			esac; \
 			mkdir -p "$(ROOTDIR)$(PREFIX)/$$f"; \
 			cp -R "$$f"/* "$(ROOTDIR)$(PREFIX)/$$f"; \
+			find "$$f" -type f | grep -E -e "\.in$$" | while read -r g; \
+			do \
+				preprocess -s "$(ROOTDIR)$(PREFIX)/$$g"; \
+				mv "$(ROOTDIR)$(PREFIX)/$$g" "$(ROOTDIR)$(PREFIX)/`dirname "$$g"`/`basename "$$g" | sed -E -e 's/^(.+)\.in$$/\1/'`"; \
+			done; \
 		fi; \
 	done; \
 	find noprefix -type d | sed -E -e '/^noprefix$$/d' -e 's/^noprefix//' | while read -r d; \
@@ -48,7 +84,7 @@ install:
 			fi; \
 		done; \
 	done; \
-	echo '$(DOCDIR)' | tr , "\n" | while read -r d; \
+	echo '$(MANDIR)' | tr , "\n" | while read -r d; \
 	do \
 		if [ -d "$$d" ]; \
 		then \
@@ -65,36 +101,49 @@ install:
 				fi; \
 			done; \
 		fi; \
-	done
+	done; \
+	if [ '$(SKIPSCRIPTS)' != 'y' ]; \
+	then \
+		`realpath '$(POST_INSTALL)'`; \
+	fi
 
 uninstall:
+	if [ '$(SKIPSCRIPTS)' != 'y' ]; \
+	then \
+		`realpath '$(PRE_UNINSTALL)'`; \
+	fi; \
 	for f in *; \
 	do \
 		if [ -d "$$f" ]; \
 		then \
 			case "$$f" in \
-				.|..|'$(BUILDDIR)'|noprefix|'$(STAGINGDIR)'|"`basename "$(ROOTDIR)"`") \
+				.|..|'$(BUILDDIR)'|'$(DOCSDIR)'|noprefix|'$(STAGINGDIR)'|"`basename "$(ROOTDIR)"`") \
 					continue; \
 					;; \
 			esac; \
 			find "$$f" -type f | while read -r i; \
 			do \
-				docdir='$(DOCDIR)'; \
-				while [ -n "$$docdir" ]; \
-				do \
-					ddir="`echo "$$docdir" | cut -d , -f 1`"; \
-					idir="$$i"; \
-					until [ "$$idir" = '.' ] || [ "$$idir" = '/' ]; \
+				if echo "$$i" | grep -E -q -e "\.in$$"; \
+				then \
+					i="`dirname "$$i"`/`basename "$$i" | sed -E -e 's/^(.+)\.in$$/\1/'`"; \
+				else \
+					mandir='$(MANDIR)'; \
+					while [ -n "$$mandir" ]; \
 					do \
-						idir="`dirname "$$idir"`"; \
-						if [ "$$idir" = "$$ddir" ]; \
-						then \
-							i="$$i.gz"; \
-							break 2; \
-						fi; \
+						ddir="`echo "$$mandir" | cut -d , -f 1`"; \
+						idir="$$i"; \
+						until [ "$$idir" = '.' ] || [ "$$idir" = '/' ]; \
+						do \
+							idir="`dirname "$$idir"`"; \
+							if [ "$$idir" = "$$ddir" ]; \
+							then \
+								i="$$i.gz"; \
+								break 2; \
+							fi; \
+						done; \
+						mandir="`echo "$$mandir" | cut -d , -f 2- -s`"; \
 					done; \
-					docdir="`echo "$$docdir" | cut -d , -f 2- -s`"; \
-				done; \
+				fi; \
 				rm -f "$(ROOTDIR)$(PREFIX)/$$i"; \
 			done; \
 		fi; \
@@ -110,7 +159,11 @@ uninstall:
 		then \
 			rm -rf "$$d"; \
 		fi; \
-	done
+	done; \
+	if [ '$(SKIPSCRIPTS)' != 'y' ]; \
+	then \
+		`realpath '$(POST_UNINSTALL)'`; \
+	fi
 
 reinstall: uninstall install
 
@@ -138,7 +191,7 @@ package:
 	{ \
 		if [ -z `command -v -- "$$1"` ]; \
 		then \
-			echo "$$1 is required to build $${2:+$$2 }packages$${3:+ for architecture $$3}" > /dev/stderr; \
+			echo "$$1 is required to build $${2:+$$2 }packages$${3:+ for architecture $$3}" >&2; \
 			exit 1; \
 		fi; \
 	}; \
@@ -173,10 +226,6 @@ package:
 		echo "$$1" | sed -E -e 's/%%/%/g' -e 's/%n/$(NAME)/g' -e 's/%v/$(VERSION)/g' -e 's/%r/$(RELEASE)/g' -e "s/%a/$$architecture/g"; \
 		unset architecture; \
 	}; \
-	random() \
-	{ \
-		dd if=/dev/random bs=1 count=2 2>/dev/null | od -t u2 | grep -E -v -e '^0+2' | sed -E -e 's/^([0-7]+) +([0-9]+)$$/\2/'; \
-	}; \
 	deplist() \
 	{ \
 		echo "$$1" | tr , "\n" | while read -r d; \
@@ -210,7 +259,7 @@ package:
 		fi; \
 		if [ "$$1" = 'deb' ] || [ "$$1" = 'rpm' ]; \
 		then \
-			changelogfile="/tmp/`random`.txt"; \
+			changelogfile="/tmp/`uuidgen`.txt"; \
 			gitchangelog -d '$(DEB_DIST)' -n '$(NAME)' -o "$$changelogfile" -r '$(REPO_URL)' -s -t -v '$(VERSION)' "$$1"; \
 			exec 3< "$$changelogfile"; \
 			changelog="--$$1-changelog /dev/fd/3"; \
@@ -242,7 +291,7 @@ package:
 	}; \
 	checkbuilddep fpm; \
 	mkdir -p '$(STAGINGDIR)'; \
-	make install ROOTDIR='$(STAGINGDIR)' PREFIX=/usr; \
+	make install ROOTDIR='$(STAGINGDIR)' PREFIX=/usr SKIPSCRIPTS=y; \
 	mkdir -p '$(BUILDDIR)'; \
 	echo "$$TYPE" | tr , "\n" | while read -r t; \
 	do \

@@ -3,31 +3,39 @@
 daemonify \- run command as daemon
 .SH SYNOPSIS
 .B daemonify
-[\-L \fIlockfile\fP] [\-c] [\-h] [\-p \fIpidfile\fP] [\fIcommand\fP] [\fIarguments\fP...]
+.RB [ \-L
+.IR lockfile ]
+.RB [ \-c ]
+.RB [ \-h ]
+.RB [ \-p 
+.IR pidfile ]
+.RI [ command ]
+.RI [ arguments ...]
 .SH DESCRIPTION
-\fIdaemonify\fP is a script that runs a command in the background as
-a daemon. It does so by launching a subprocess, setting its \fIumask\fP(2) value
-to 0, then running that command from within the subprocess with its
-standard input, output, and error streams redirected to /dev/null.
-\fIdaemonify\fP may also save the daemon's process ID (PID) to a file, set its
-working directory to / (the root directory), or use a lock file to ensure
-that only one instance of the daemon runs at a time.
+\fBdaemonify\fP is a script that runs a command in the background as
+a daemon. It does so by launching a subprocess, setting its \fBumask\fP(2)
+value to 0, then running that command from within the subprocess with its
+standard input, output, and error streams redirected to \fI/dev/null\fP.
+\fBdaemonify\fP may also save the daemon's process ID (PID) to a file, set
+its working directory to \fI/\fP (the root directory), or use a lock file
+to ensure that only one instance of the daemon runs at a time.
 .SH OPTIONS
-.TP
-.B \-L \fIlockfile\fP
+.TP 4
+.BI "\-L " lockfile
 Performs a single\-instance check using a lock file. If the file exists,
-\fIdaemonify\fP exits and the daemon does not start. This ensures that only
-one instance of the daemon is running at any time.
-.TP
+\fBdaemonify\fP exits and the daemon does not start. This ensures that
+only one instance of the daemon is running at any time.
+.TP 4
 .B \-c
-Changes the daemon's working directory to /.
-.TP
+Changes the daemon's working directory to \fI/\fP.
+.TP 4
 .B \-h
 Shows a help message.
-.TP
-.B \-p \fIpidfile\fP
+.TP 4
+.BI "\-p " pidfile
 Write the daemon's PID to a file. This file can also be used as a lock
 file by passing it to \fB\-L\fP, though many daemons use separate lock and
 PID files.
 .SH "SEE ALSO"
-\fIumask\fP(2), \fIdaemon\fP(7)
+.BR umask (2),
+.BR daemon (7)

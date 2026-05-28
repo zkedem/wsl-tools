@@ -1,0 +1,59 @@
+#!/bin/sh
+
+argrange()
+{
+	for a in $(seq $1 $2)
+	do
+		eval "range=\"\${range:+\$range }'\${$((a + 2))}'\""
+	done
+	unset a
+	echo "$range"
+	unset range
+}
+
+wincat()
+{
+	cat "$@" | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\r\n/g'
+}
+
+poshexe=/mnt/*/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+showhelp=1
+i=1
+
+while true
+do
+	case "$(eval "echo \${$i}" | tr [:upper:] [:lower:] | sed -E -e '\%^[^-/]%d' -e 's%^[-/]%%')" in
+		help|?)
+			showhelp=0
+			;;
+		wslpsconsolefile)
+			eval "set -- $(argrange 1 $((i - 1)) "$@") -PSConsoleFile \"\`wslpath -m \"\${$((i + 1))}\"\`\" $(argrange $((i + 2)) $# "$@")"
+			;;
+		wslfile)
+			eval "set -- $(argrange 1 $((i - 1)) "$@") -File \"\`wslpath -m \"\${$((i + 1))}\"\`\" $(argrange $((i + 2)) $# "$@")"
+			;;
+		wslworkingdirectory|wslwd)
+			eval "set -- $(argrange 1 $((i - 1)) "$@") -WorkingDirectory \"\`wslpath -m \"\${$((i + 1))}\"\`\" $(argrange $((i + 2)) $# "$@")"
+			;;
+	esac
+	i=$((i + 1))
+	[ $i -le $# ] || break
+done
+
+if (exit $showhelp)
+then
+	$poshexe "$@" | sed -e 's/\r//g' -e '/^EXAMPLES$/{r /dev/fd/3' -e 'd}' 3<<EOF | wincat
+-WslPSConsoleFile
+    Same as -PSConsoleFile, but takes a WSL path instead of a Windows path.
+
+-WslFile
+    Same as -File, but takes a WSL path instead of a Windows path.
+
+-WslWorkingDirectory | -wslwd
+    Same as -WorkingDirectory, but takes a WSL path instead of a Windows path.
+
+EXAMPLES
+EOF
+else
+	exec $poshexe "$@"
+fi

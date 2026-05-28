@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Return to Windows
+GenericName=Return to Windows
+Comment=Returns to the Windows desktop
+Exec=Return-ToWindows.ps1
+Icon=windows
+Terminal=false
+Categories=Application;System;Utility;
+Keywords=windows
+StartupNotify=false

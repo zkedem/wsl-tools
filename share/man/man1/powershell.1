@@ -1,0 +1,214 @@
+.TH POWERSHELL 1 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+powershell \- .NET command-line shell for Windows
+.SH SYNOPSIS
+.B powershell
+[\fB\-PSConsoleFile\fP \fI<file>\fP | \fB\-Version\fP \fI<version>\fP]
+.br
+    [\fB\-NoLogo\fP] [\fB\-NoExit\fP] [\fB\-Sta\fP] [\fB\-Mta\fP]
+[\fB\-NoProfile\fP] [\fB\-NonInteractive\fP]
+.br
+    [\fB\-InputFormat\fP {\fBText\fP | \fBXML\fP}] [\fB\-OutputFormat\fP
+{\fBText\fP | \fBXML\fP}]
+.br
+    [\fB\-WindowStyle\fP \fI<style>\fP] [\fB\-EncodedCommand\fP
+\fI<Base64EncodedCommand>\fP]
+.br
+    [\fB\-ConfigurationName\fP \fI<string>\fP]
+.br
+    [\fB\-File\fP \fI<filePath>\fP \fI<args>\fP] [\fB\-ExecutionPolicy\fP
+\fI<ExecutionPolicy>\fP]
+.br
+    [\fB\-WorkingDirectory\fP \fI<directoryPath>\fP]
+.br
+    [\fB\-Command\fP { \fB\-\fP | \fI<script\-block>\fP [\fB\-args\fP
+\fI<arg\-array>\fP]
+.br
+                  | \fI<string>\fP [\fI<CommandParameters>\fP] } ]
+.br
+    [\fB\-WslPSConsoleFile\fP \fI<file>\fP]
+.br
+    [\fB\-WslFile\fP \fI<filePath>\fP \fI<args>\fP]
+.br
+    [\fB\-WslWorkingDirectory\fP \fI<directoryPath>\fP]
+.PP
+.B powershell
+\fB\-Help\fP | \fB\-?\fP | \fB/?\fP
+.SH DESCRIPTION
+Windows PowerShell is a command-line shell, scripting language, and
+automation platform built on the .NET Framework and powered by the Common
+Language Runtime (CLR). As such, it allows nearly complete access to the
+full feature set of the .NET Framework and Windows, including system
+calls. The \fBpowershell\fP utility allows Windows PowerShell to be
+utilized from within the Windows Subsystem for Linux (WSL), providing
+enhanced integration between the Windows and Linux environments.
+.SH OPTIONS
+The options are the same as for \fBPowerShell.exe\fP under Windows, with
+extra options added to support WSL. All file and directory paths are
+Windows paths unless otherwise specified.
+.TP 4
+.BI "\-PSConsoleFile " file
+Loads the specified Windows PowerShell console file. To create a console
+.br
+file, use \fBExport\-Console\fP in Windows PowerShell.
+.TP 4
+.BI "\-Version " version
+Starts the specified version of Windows PowerShell.
+.br
+Enter a version number with the parameter, such as \(dq\fB\-version
+2.0\fP\(dq.
+.TP 4
+.B \-NoLogo
+Hides the copyright banner at startup.
+.TP 4
+.B \-NoExit
+Does not exit after running startup commands.
+.TP 4
+.B \-Sta
+Starts the shell using a single\-threaded apartment.
+.br
+Single\-threaded apartment (STA) is the default.
+.TP 4
+.B \-Mta
+Start the shell using a multithreaded apartment.
+.TP 4
+.B \-NoProfile
+Does not load the Windows PowerShell profile.
+.TP 4
+.B \-NonInteractive
+Does not present an interactive prompt to the user.
+.TP 4
+\fB\-InputFormat\fP {\fBText\fP | \fBXML\fP}
+Describes the format of data sent to Windows PowerShell. Valid values are
+.br
+\(dq\fBText\fP\(dq (text strings) or \(dq\fBXML\fP\(dq (serialized CLIXML
+format).
+.TP 4
+\fB\-OutputFormat\fP {\fBText\fP | \fBXML\fP}
+Determines how output from Windows PowerShell is formatted. Valid values
+.br
+are \(dq\fBText\fP\(dq (text strings) or \(dq\fBXML\fP\(dq (serialized
+CLIXML format).
+.TP 4
+.BI "\-WindowStyle " style
+Sets the window style to \fBNormal\fP, \fBMinimized\fP, \fBMaximized\fP or
+\fBHidden\fP.
+.TP 4
+.BI "\-EncodedCommand " Base64EncodedCommand
+Accepts a base\-64\-encoded string version of a command. Use this
+parameter
+.br
+to submit commands to Windows PowerShell that require complex quotation
+.br
+marks or curly braces.
+.TP 4
+.BI "\-ConfigurationName " string
+Specifies a configuration endpoint in which Windows PowerShell is run.
+.br
+This can be any endpoint registered on the local machine including the
+.br
+default Windows PowerShell remoting endpoints or a custom endpoint having
+.br
+specific user role capabilities.
+.TP 4
+\fB\-File\fP \fIfilePath\fP \fIargs\fP
+Runs the specified script in the local scope (\(dqdot\-sourced\(dq), so
+that the
+.br
+functions and variables that the script creates are available in the
+.br
+current session. Enter the script file path and any parameters.
+.br
+File must be the last parameter in the command, because all characters
+.br
+typed after the File parameter name are interpreted
+.br
+as the script file path followed by the script parameters.
+.TP 4
+.BI "\-ExecutionPolicy " ExecutionPolicy
+Sets the default execution policy for the current session and saves it
+.br
+in the \fB$env:PSExecutionPolicyPreference\fP environment variable.
+.br
+This parameter does not change the Windows PowerShell execution policy
+.br
+that is set in the registry.
+.TP 4
+\fB\-Command\fP { \fB\-\fP | \fIscript\-block\fP [\fB\-args\fP \
+\fIarg\-array\fP] | \fIstring\fP [\fICommandParameters\fP] }
+Executes the specified commands (and any parameters) as though they were
+.br
+typed at the Windows PowerShell command prompt, and then exits, unless
+.br
+\fBNoExit\fP is specified. The value of \fBCommand\fP can be
+\(dq\fB\-\fP\(dq, a string. or a
+.br
+script block.
+
+If the value of \fBCommand\fP is \(dq\fB\-\fP\(dq, the command text is
+read from standard
+.br
+input.
+
+If the value of \fBCommand\fP is a script block, the script block must be
+enclosed
+.br
+in braces ({}). You can specify a script block only when running
+\fBPowerShell.exe\fP
+.br
+in Windows PowerShell. The results of the script block are returned to the
+.br
+parent shell as deserialized XML objects, not live objects.
+
+If the value of \fBCommand\fP is a string, \fBCommand\fP must be the last
+parameter
+.br
+in the command , because any characters typed after the command are
+.br
+interpreted as the command arguments.
+
+To write a string that runs a Windows PowerShell command, use the format:
+.br
+	\fB\(dq& {\fP\fI<command>\fP\fB}\(dq\fP
+.br
+where the quotation marks indicate a string and the invoke operator
+(\fB&\fP)
+.br
+causes the command to be executed.
+.TP 4
+\fB\-WorkingDirectory \fP\fIdirectoryPath\fP, \fB\-wd \
+\fP\fIdirectoryPath\fP
+Sets the working directory at the start of PowerShell given a valid
+PowerShell directory path.
+.br
+Executing `\fBSet-Location -LiteralPath\fP \fI<path>\fP` at startup.
+.br
+Example: \fBpwsh -WorkingDirectory ~\fP
+.TP 4
+\fB\-Help\fP, \fB\-?\fP, \fB/?\fP
+Displays a help message describing the options in this section.
+.TP 4
+.BI "\-WslPSConsoleFile " file
+Same as \fB\-PSConsoleFile\fP, but takes a WSL path instead of a Windows
+path.
+.TP 4
+\fB\-WslFile\fP \fIfilePath\fP \fIargs\fP
+Same as \fB\-File\fP, but takes a WSL path instead of a Windows path.
+.TP 4
+\fB\-WslWorkingDirectory \fP\fIdirectoryPath\fP, \fB\-wslwd \
+\fP\fIdirectoryPath\fP
+Same as \fB\-WorkingDirectory\fP, but takes a WSL path instead of a
+Windows path.
+.SH NOTES
+Windows PowerShell scripts that run from within WSL are supported. The
+script should begin with the following line:
+.PP
+.in +4n
+.EX
+#!/bin/env -S powershell -ExecutionPolicy Bypass -WslFile
+.EE
+.in
+.PP
+Script files should have the \fI.ps1\fP file extension.
+.SH "SEE ALSO"
+.BR execve (2)

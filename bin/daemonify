@@ -4,7 +4,7 @@ b0="$(basename $0)"
 
 showhelp()
 {
-	cat <<EOF > /dev/stderr
+	cat <<EOF >&2
 Usage: $b0 [-L lockfile] [-c] [-h] [-p pidfile] [command] [arguments...]
 
 	-L lockfile Single-instance checking using lock file
@@ -37,7 +37,7 @@ unset o
 
 if [ -z "$(eval "echo \${$OPTIND}")" ]
 then
-	echo 'You must specify a command to run as a daemon' > /dev/stderr
+	echo 'You must specify a command to run as a daemon' >&2
 	showhelp
 	exit 1
 fi

@@ -23,183 +23,207 @@
 .\" not be used in advertising or otherwise to promote the sale, use or
 .\" other dealings in this Software without prior written authorization
 .\" from The Open Group.
-.\" shorthand for double quote that works everywhere.
-.ds q \N'34'
 .TH XWSLG.CONF 5 "%DATE%" "%NAME% %VERSION%"
 .SH NAME
 xwslg.conf, xwslg.conf.d \- configuration files for Xwslg
 .SH INTRODUCTION
-\fIXwslg\fP, like \fIXorg\fP, supports several mechanisms for supplying and obtaining
-configuration and run-time parameters: command line options, environment
-variables, the \fIxwslg.conf\fP and \fIxwslg.conf.d\fP configuration files,
-auto-detection, and fallback defaults. When the same information is
-supplied in more than one way, the highest precedence mechanism is used.
-The list of mechanisms is ordered from highest precedence to lowest. The
-available command line options and environment variables are described in
-the \fIXserver\fP(1), \fIXorg\fP(1), \fIXwayland\fP(1), and \fIXwslg\fP(1) manual pages.
-Configuration file parameters and default values are described below.
+\fBXwslg\fP, like \fBXorg\fP, supports several mechanisms for supplying
+and obtaining configuration and run-time parameters: command line options,
+environment variables, the \fIxwslg.conf\fP and \fIxwslg.conf.d\fP
+configuration files, auto-detection, and fallback defaults. When the same
+information is supplied in more than one way, the highest precedence
+mechanism is used. The list of mechanisms is ordered from highest
+precedence to lowest. The available command line options and environment
+variables are described in the \fBXserver\fP(1), \fBXorg\fP(1),
+\fBXwayland\fP(1), and \fBXwslg\fP(1) manual pages. Configuration file
+parameters and default values are described below.
 .SH DESCRIPTION
 The configuration files described here mostly follow the same format as
-for \fIXorg\fP, albeit with some differences. Hence, much of this page is
-adapted from \fIxorg.conf\fP(5).
+for \fBXorg\fP, albeit with some differences. Hence, much of this page is
+adapted from \fBxorg.conf\fP(5).
 .PP
-\fIXwslg\fP uses a configuration file called \fIxwslg.conf\fP and files ending in the
-suffix \fI.conf\fP from the directory \fIxwslg.conf.d\fP for its initial setup. The
-\fIxwslg.conf\fP file is searched for in the following places when \fIXwslg\fP is
-started as a normal user:
+\fBXwslg\fP uses a configuration file called \fIxwslg.conf\fP and files
+ending in the suffix \fI.conf\fP from the directory \fIxwslg.conf.d\fP
+for its initial setup. The \fIxwslg.conf\fP file is searched for in the
+following places when \fBXwslg\fP is started as a normal user:
 .PP
-.RS
-.nf
+.RS 4
 .IR /etc/X11/ <cmdline>
+.br
 .IR /usr/etc/X11/ <cmdline>
+.br
 .IB /etc/X11/ $XWSLGCONFIG
+.br
 .IB /usr/etc/X11/ $XWSLGCONFIG
+.br
 .I /etc/X11/xwslg.conf
+.br
 .I /etc/xwslg.conf
+.br
 .IR /usr/etc/X11/xwslg.conf. <hostname>
+.br
 .I /usr/etc/X11/xwslg.conf
+.br
 .IR /usr/lib/X11/xwslg.conf. <hostname>
+.br
 .I /usr/lib/X11/xwslg.conf
-.fi
+.br
 .RE
 .PP
-where \fI<cmdline>\fP is a relative path specified with the \fB\-config\fP command line
-option, \fB$XWSLGCONFIG\fP is the relative path specified by that environment
-variable, and \fI<hostname>\fP is the machine's hostname as reported by
-\fIuname\fP(1).
+where \fI<cmdline>\fP is a relative path specified with the \fB\-config\fP
+command line option, \fB$XWSLGCONFIG\fP is the relative path specified by
+that environment variable, and \fI<hostname>\fP is the machine's hostname
+as reported by \fBuname\fP(1).
 .PP
-When \fIXwslg\fP is started by the \(lqroot\(rq user, the config file search locations
-are as follows:
+When \fBXwslg\fP is started by the \(lqroot\(rq user, the config file
+search locations are as follows:
 .PP
-.RS
-.nf
+.RS 4
 <cmdline>
+.br
 .IR /etc/X11/ <cmdline>
+.br
 .IR /usr/etc/X11/ <cmdline>
+.br
 .B $XWSLGCONFIG
+.br
 .IB /etc/X11/ $XWSLGCONFIG
+.br
 .IB /usr/etc/X11/ $XWSLGCONFIG
+.br
 .I /etc/X11/xwslg.conf
+.br
 .I /etc/xwslg.conf
+.br
 .IR /usr/etc/X11/xwslg.conf. <hostname>
+.br
 .I /usr/etc/X11/xwslg.conf
+.br
 .IR /usr/lib/X11/xwslg.conf. <hostname>
+.br
 .I /usr/lib/X11/xwslg.conf
-.fi
+.br
 .RE
 .PP
-where \fI<cmdline>\fP is the path specified with the \fB\-config\fP command line
-option (which may be absolute or relative), \fB$XWSLGCONFIG\fP is the relative
-path specified by that environment variable (absolute or relative), \fB$HOME\fP
-is the path specified by that environment variable (usually the home
-directory), and \fI<hostname>\fP is the machine's hostname as reported by
-\fIuname\fP(1).
+where \fI\<cmdline\>\fP is the path specified with the \fB\-config\fP
+command line option (which may be absolute or relative),
+\fB$XWSLGCONFIG\fP is the relative path specified by that environment
+variable (absolute or relative), \fB$HOME\fP is the path specified by that
+environment variable (usually the home directory), and \fI\<hostname\>\fP is
+the machine's hostname as reported by \fBuname\fP(1).
 .PP
 Additional configuration files are searched for in the following
-directories when \fIXwslg\fP is started as a normal user:
+directories when \fBXwslg\fP is started as a normal user:
 .PP
-.RS
-.nf
+.RS 4
 .IR /etc/X11/ <cmdline>
+.br
 .I /etc/X11/xwslg.conf.d
-.fi
+.br
 .RE
 .PP
-where \fI<cmdline>\fP is a relative path specified with the \fB\-configdir\fP command
-line option.
+where \fI<cmdline>\fP is a relative path specified with the
+\fB\-configdir\fP command line option.
 .PP
-When \fIXwslg\fP is started by the \(lqroot\(rq user, the config directory search
-locations are as follows:
+When \fBXwslg\fP is started by the \(lqroot\(rq user, the config directory
+search locations are as follows:
 .PP
-.RS
-.nf
+.RS 4
 <cmdline>
+.br
 .IR /etc/X11/ <cmdline>
+.br
 .I /etc/X11/xwslg.conf.d
-.fi
+.br
 .RE
 .PP
-where \fI<cmdline>\fP is the path specified with the \fB\-configdir\fP command line
-option (which may be absolute or relative).
+where \fI<cmdline>\fP is the path specified with the \fB\-configdir\fP
+command line option (which may be absolute or relative).
 .PP
 Finally, configuration files will also be searched for in a directory
 reserved for system use. These files are found in the following directory:
 .PP
-.RS
-.nf
+.RS 4
 .I /usr/share/X11/xwslg.conf.d
-.fi
+.br
 .RE
 .PP
-The \fIxwslg.conf\fP and \fIxwslg.conf.d\fP files are composed of a number of sections
-which may be present in any order, or omitted to use default configuration
-values. Each section has the form:
+The \fIxwslg.conf\fP and \fIxwslg.conf.d\fP files are composed of a number
+of sections which may be present in any order, or omitted to use default
+configuration values. Each section has the form:
 .PP
-.RS
-.nf
-.BI "Section  \*q" SectionName \*q
+.RS 4
+.BI "Section  \(dq" SectionName \(dq
+.br
 .RI "    " SectionEntry
+.br
     ...
+.br
 .B EndSection
-.fi
+.br
 .RE
 .PP
-Unlike \fIXorg\fP, which recognizes several section names in its configuration
-files, \fIXwslg\fP recognizes only a few. The section names recognized by \fIXwslg\fP
-are:
+Unlike \fBXorg\fP, which recognizes several section names in its
+configuration files, \fBXwslg\fP recognizes only a few. The section names
+recognized by \fBXwslg\fP are:
 .PP
-.RS
-.nf
+.RS 4
 .BR "ServerFlags    " "Server flags"
+.br
 .BR "Extensions     " "Extension enabling"
-.BR "Vendor         " "Configuration options specific to \fIXwslg\fP"
-.fi
+.br
+.BR "Vendor         " "Configuration options specific to \fBXwslg\fP"
+.br
 .RE
 .PP
-If \fIXwslg\fP encounters a section or entry name it does not recognize, it will
-simply ignore it. Additional section and entry names may be recognized in
-future releases.
+If \fBXwslg\fP encounters a section or entry name it does not recognize,
+it will simply ignore it. Additional section and entry names may be
+recognized in future releases.
 .PP
 Config file keywords are case\-insensitive, and \(lq_\(rq characters are
-ignored. Most strings (including \fBOption\fP names) are also case-insensitive,
-and insensitive to white space and \(lq_\(rq characters.
+ignored. Most strings (including \fBOption\fP names) are also
+case-insensitive, and insensitive to white space and \(lq_\(rq characters.
 .PP
 Each config file entry usually takes up a single line in the file. They
 consist of a keyword, which is possibly followed by one or more arguments,
 with the number and types of the arguments depending on the keyword. Like
-with section names, \fIXwslg\fP recognizes fewer argument types than \fIXorg\fP,
-though this may change in future releases. The argument types are:
+with section names, \fBXwslg\fP recognizes fewer argument types than
+\fBXorg\fP, though this may change in future releases. The argument types
+are:
 .PP
-.RS
-.nf
+.RS 4
 .BR "Integer     " "an integer number in decimal, hex or octal"
-.BR "String      " "a string enclosed in double quote marks (\*q)"
-.fi
+.br
+.BR "String      " "a string enclosed in double quote marks (\(dq)"
+.br
 .RE
 .PP
 Note: hex integer values must be prefixed with \(lq0x\(rq, and octal values
 with \(lq0\(rq.
 .PP
-A special keyword called \fBOption\fP may be used to provide free-form data to
-various components of the server. The \fBOption\fP keyword takes either one or
-two string arguments. The first is the option name, and the optional
-second argument is the option value. Valid option value types include:
+A special keyword called \fBOption\fP may be used to provide free-form
+data to various components of the server. The \fBOption\fP keyword takes
+either one or two string arguments. The first is the option name, and the
+optional second argument is the option value. Valid option value types
+include:
 .PP
-.RS
-.nf
+.RS 4
 .BR "Integer     " "an integer number in decimal, hex or octal"
+.br
 .BR "String      " "a sequence of characters"
+.br
 .BR "Boolean     " "a boolean value (see below)"
-.fi
+.br
 .RE
 .PP
-Note that \fIall\fP \fBOption\fP values, not just strings, must be enclosed in quotes.
+Note that \fIall\fP \fBOption\fP values, not just strings, must be
+enclosed in quotes.
 .PP
 Boolean options may optionally have a value specified. When no value is
 specified, the option's value is \fBTRUE\fP. The following boolean option
 values are recognized as \fBTRUE\fP:
 .PP
-.RS
+.RS 4
 .BR 1 ,
 .BR on ,
 .BR true ,
@@ -208,212 +232,246 @@ values are recognized as \fBTRUE\fP:
 .PP
 and the following boolean option values are recognized as \fBFALSE\fP:
 .PP
-.RS
+.RS 4
 .BR 0 ,
 .BR off ,
 .BR false ,
 .B no
 .RE
 .PP
-In general, if an option's name is prefixed with \*q\fBNo\fP\*q, its meaning is
-inverted.
+If an option name is prefixed with \(dq\fBNo\fP\(dq, then the option value
+is negated.
 .PP
 Example: the following option entries are equivalent:
 .PP
-.RS
-.nf
-.B "Option \*qAccel\*q   \*qOff\*q"
-.B "Option \*qNoAccel\*q"
-.B "Option \*qNoAccel\*q \*qOn\*q"
-.B "Option \*qAccel\*q   \*qfalse\*q"
-.B "Option \*qAccel\*q   \*qno\*q"
-.fi
+.RS 4
+.B "Option \(dqAccel\(dq   \(dqOff\(dq"
+.br
+.B "Option \(dqNoAccel\(dq"
+.br
+.B "Option \(dqNoAccel\(dq \(dqOn\(dq"
+.br
+.B "Option \(dqAccel\(dq   \(dqfalse\(dq"
+.br
+.B "Option \(dqAccel\(dq   \(dqno\(dq"
+.br
 .RE
 .SH "SERVERFLAGS SECTION"
 This section is used to specify some global X server options. All of the
-entries in this section are \fBOptions\fP. The \fBServerFlags\fP section is optional,
-as are the entries that may be specified in it. Options with command line
-equivalents are overridden when their command line equivalent is used. The
-options recognized by this section are:
-.TP
-.BI "Option \*qBlankTime\*q  \*q" time \*q
-sets the inactivity timeout for the \fBblank\fP phase of the screensaver. \fItime\fP
-is in minutes. This is equivalent to \fIXwslg\fP's \fB\-s\fP flag, and the value can
-be changed at run\-time with \fIxset\fP(1). Default: 10 minutes.
-.TP
-.BI "Option \*qXinerama\*q  \*q" boolean \*q
+entries in this section are \fBOptions\fP. The \fBServerFlags\fP section
+is optional, as are the entries that may be specified in it. Options with
+command line equivalents are overridden when their command line equivalent
+is used. The options recognized by this section are:
+.TP 7
+.BI "Option \(dqBlankTime\(dq  \(dq" time \(dq
+sets the inactivity timeout for the \fBblank\fP phase of the screensaver.
+\fItime\fP is in minutes. This is equivalent to \fBXwslg\fP's \fB\-s\fP
+flag, and the value can be changed at run\-time with \fBxset\fP(1).
+Default: 10 minutes.
+.TP 7
+.BI "Option \(dqXinerama\(dq  \(dq" boolean \(dq
 enable or disable XINERAMA extension. Default is disabled.
-.TP
-.BI "Option \*qIndirectGLX\*q \*q" boolean \*q
+.TP 7
+.BI "Option \(dqIndirectGLX\(dq \(dq" boolean \(dq
 enable or disable indirect GLX contexts. Indirect GLX contexts are
 disabled by default.
 .SH "EXTENSIONS SECTION"
 This section is used to specify which X11 protocol extensions should be
-enabled or disabled. The \fBExtensions\fP section is optional, as are all of the
-entries that may be specified in it.
+enabled or disabled. The \fBExtensions\fP section is optional, as are all
+of the entries that may be specified in it.
 .PP
-Entries in this section are listed as \fBOption\fP statements with the name of
-the extension as the first argument, and a boolean value as the second.
-The extension name is case-sensitive, and matches the form shown in the
-output of \*qXwslg \fB\-help\fP\*q.
+Entries in this section are listed as \fBOption\fP statements with the
+name of the extension as the first argument, and a boolean value as the
+second. The extension name is case-sensitive, and matches the form shown
+in the output of \(dq\fBXwslg \-help\fP\(dq.
 .PP
-.RS
+.RS 4
 Example: the MIT\-SHM extension can be disabled with the following entry:
 .PP
-.RS
-.nf
-.B "Section \*qExtensions\*q"
-.B "    Option \*qMIT\-SHM\*q \*qDisable\*q"
+.RS 4
+.B "Section \(dqExtensions\(dq"
+.br
+.B "    Option \(dqMIT\-SHM\(dq \(dqDisable\(dq"
+.br
 .B "EndSection"
-.fi
+.br
 .RE
 .RE
 .SH "VENDOR SECTION"
-Traditionally, the \fBVendor\fP section was used to provide vendor\-specific
-configuration information. Under \fIXwslg\fP, the \fBVendor\fP section is used to
-specify default settings for \fIXwslg\fP in different contexts, and to pass
-options to the underlying \fIXwayland\fP instance. As such, the \fBVendor\fP section
-may be present any number of times, and contains an optional \fBIdentifier\fP
-entry and any number of \fBOption\fP flags.
+Traditionally, the \fBVendor\fP section was used to provide
+vendor\-specific configuration information. Under \fBXwslg\fP, the
+\fBVendor\fP section is used to specify default settings for \fBXwslg\fP
+in different contexts, and to pass options to the underlying
+\fBXwayland\fP instance. As such, the \fBVendor\fP section may be present
+any number of times, and contains an optional \fBIdentifier\fP entry and
+any number of \fBOption\fP flags.
 .PP
-The \fBIdentifier\fP entry, if it is present, specifies the name of the process
-that called \fIXwslg\fP; in that case, the settings in the respective \fBVendor\fP
-section will only apply to those instances of \fIXwslg\fP whose parent process
-name matches that \fBIdentifier\fP entry. If no \fBIdentifier\fP entry is present, the
-settings will apply to all instances of \fIXwslg\fP unless overridden by command
-line options. The \fBOption\fP flags correspond to command line options of
-\fIXwslg\fP, except for the \fBExtend\fP flag which is explained below. The options
+The \fBIdentifier\fP entry, if it is present, specifies the name of the
+process that called \fBXwslg\fP; in that case, the settings in the
+respective \fBVendor\fP section will only apply to those instances of
+\fBXwslg\fP whose parent process name matches that \fBIdentifier\fP entry.
+If no \fBIdentifier\fP entry is present, the settings will apply to all
+instances of \fBXwslg\fP unless overridden by command line options. The
+\fBOption\fP flags correspond to command line options of \fBXwslg\fP,
+except for the \fBExtend\fP flag which is explained below. The options
 recognized by this section are:
-.TP
-.BI "Option \*qExtend\*q \*q" name \*q
-inherits settings from another \fBVendor\fP section that has an \fBIdentifier\fP entry
-matching \fIname\fP. This can be useful if you want the same settings to apply
-in multiple contexts.
-.TP
-.BI "Option \*qdecorate\*q \*q" boolean \*q
-adds decorations to the \fIXwayland\fP root window when running rootful. Default
-is disabled.
-.TP
-.BI "Option \*qenable\-ei\-portal\*q \*q" boolean \*q
-enables support for the XDG portal for input emulation. Default is
+.TP 7
+.BI "Option \(dqExtend\(dq \(dq" name \(dq
+inherits settings from another \fBVendor\fP section that has an
+\fBIdentifier\fP entry matching \fIname\fP. This can be useful if you want
+the same settings to apply in multiple contexts.
+.TP 7
+.BI "Option \(dqRootless\(dq \(dq" boolean \(dq
+enables or disables rootless mode, in which X clients are integrated
+seamlessly with the Windows desktop. If this option is disabled,
+X clients are displayed within a root window. Default is disabled.
+.TP 7
+.BI "Option \(dqFullscreen\(dq \(dq" boolean \(dq
+enables or disables fullscreen mode when running rootful. This option is
+ignored if the system's version of \fBXwayland\fP is older than 23.1.0, in
+which case the root window will always be fullscreen. Otherwise, this
+option is disabled by default.
+.TP 7
+.BI "Option \(dqGeometry\(dq \(dq" WxH \(dq
+sets the size of the root window. This option is ignored when
+\fBFullscreen\fP is enabled, and is also ignored if the system's version
+of \fBXwayland\fP is older than 23.1.0. Default: 640x480.
+.TP 7
+.BI "Option \(dqHiDPI\(dq \(dq" boolean \(dq
+adjusts to the output scale when running rootful. Default is disabled.
+.TP 7
+.BI "Option \(dqHost-Grab\(dq \(dq" boolean \(dq
+activates host-grab mode, in which Windows keyboard shortcuts are
+inhibited and the mouse pointer is confined to the root window. To leave
+host-grab mode, press the [CTRL] and [SHIFT] keys together. Default is
+disabled. This option is not supported when running rootless.
+.TP 7
+.BI "Option \(dqKeymap\(dq \(dq" boolean \(dq
+uses the keymap set by WSLg's Wayland compositor when enabled. Disabling
+this option allows X clients to select keymaps directly, which may be
+preferable in certain cases. Default is enabled.
+.TP 7
+.BI "Option \(dqOutput\(dq \(dq" name \(dq
+specifies which output to use when running in fullscreen rootful mode.
+Valid output names can be found using \fBwayland-info\fP(1). Under WSLg,
+the default output is usually rdp-0.
+.TP 7
+.BI "Option \(dqWM\(dq \(dq" fd \(dq
+specifies a socket for a window manager to connect to when \fBXwslg\fP is
+running in rootless mode. Unset by default.
+.TP 7
+.BI "Option \(dqInitFD\(dq \(dq" fd \(dq
+specifies a listen socket to which X clients connect during
+initialization. Unset by default.
+.TP 7
+.BI "Option \(dqListenFD\(dq \(dq" fd \(dq
+specifies a listen socket to which X clients connect. Unset by default.
+.TP 7
+.BI "Option \(dqListen\(dq \(dq" fd \(dq
+is a deprecated synonym for \fBListenFD\fP. Unset by default.
+.TP 7
+.BI "Option \(dqSHM\(dq \(dq" boolean \(dq
+forces the shared memory backend instead of the glamor backend for passing
+buffers to WSLg's Wayland compositor. Default is disabled.
+.TP 7
+.BI "Option \(dqGlamor\(dq \(dq" gl|es|off \(dq
+sets the rendering API to be used for Glamor acceleration. Valid values
+are \fBgl\fP for the OpenGL API, which is the default, \fBes\fP for the GL
+ES API, and \fBoff\fP, which disables Glamor acceleration and has the same
+effect as enabling the \fBSHM\fP option. This option cannot be specified
+if the \fBSHM\fP option itself is enabled. Specifying this option requires
+that your system's version of \fBXwayland\fP support Glamor acceleration.
+.TP 7
+.BI "Option \(dqTouchPointerEmulation\(dq \(dq" boolean \(dq
+enables or disables touch pointer emulation. Default is enabled.
+.TP 7
+.BI "Option \(dqForce-XRandR-Emulation\(dq \(dq" boolean \(dq
+forces additional non-native modes to be exposed when the viewporter is
+not supported by WSLg's Wayland compositor. Default is disabled.
+.TP 7
+.BI "Option \(dqDecorate\(dq \(dq" boolean \(dq
+enables or disables decorations, i.e. caption buttons and window borders,
+on the root window when running rootful. Default is disabled. Specifying
+this option requires that libdecor be supported by your system's version
+of \fBXwayland\fP.
+.TP 7
+.BI "Option \(dqEnable-EI-Portal\(dq \(dq" boolean \(dq
+activates the XDG portal for input emulation. Default is disabled.
+Specifying this option requires that your system's version of
+\fBXwayland\fP have EI and OEFFIS support.
+.TP 7
+.BI "Option \(dqClipboard\(dq \(dq" boolean \(dq
+enables or disables the clipboard selection bridge, which syncs the X11
+CLIPBOARD and PRIMARY selections with those of Wayland. Default is
 disabled.
-.TP
-.BI "Option \*qfullscreen\*q \*q" boolean \*q
-sets the \fIXwayland\fP window fullscreen when running rootful. Default is
-disabled.
-.TP
-.B Option \*qgeometry\*q \*q\fIWxH\fP|\fIauto\fP\*q
-sets the geometry of the window when running rootful. \fIauto\fP sets the
-geometry to match that of the physical monitor. Default: 640x480.
-.TP
-.B Option \*qglamor\*q \*q\fIgl\fP|\fIes\fP|\fIoff\fP\*q
-sets rendering API for Glamor acceleration. Cannot be used with \fBshm\fP
-option. Default: gl.
-.TP
-.BI "Option \*qhidpi\*q \*q" boolean \*q
-adjusts to the scale of the outputs when running rootful in windowing
-mode. Default is disabled.
-.TP
-.BI "Option \*qhost\-grab\*q \*q" boolean \*q
-inhibits host keyboard shorcuts and confines the pointer when running
-rootful. Default is disabled.
-.TP
-.BI "Option \*qinitfd\*q \*q" fd \*q
-adds the given fd as a listen socket for initialization of X clients.
-.TP
-.BI "Option \*qlisten\*q \*q" fd \*q
-is deprecated; use \fBlistenfd\fP instead.
-.TP
-.BI "Option \*qlistenfd\*q \*q" fd \*q
-adds the given fd as a listen socket.
-.TP
-.BI "Option \*qnoTouchPointerEmulation\*q \*q" boolean \*q
-inhibits touch pointer emulation. Default is disabled.
-.TP
-.BI "Option \*qforce\-xrandr\-emulation\*q \*q" boolean \*q
-forces additional non-native modes to be exposed when viewporter is not
-supported by the Wayland compositor. Default is disabled.
-.TP
-.BI "Option \*qnokeymap\*q \*q" boolean \*q
-instructs \fIXwayland\fP to ignore the keymap set by the Wayland compositor.
-Default is disabled.
-.TP
-.BI "Option \*qoutput\*q \*q" name \*q
-specifies on which output \fIXwayland\fP fullscreen rootful should be placed.
-.TP
-.BI "Option \*qrootless\*q \*q" boolean \*q
-activates rootless mode, so that X clients integrate seamlessly with
-Wayland clients in a Wayland desktop. Default is disabled.
-.TP
-.BI "Option \*qshm\*q \*q" boolean \*q
-forces the shared memory backend instead of glamor (if available) for
-passing buffers to the Wayland server. Cannot be used with \fBglamor\fP option.
-Default is disabled.
-.TP
-.BI "Option \*qverbose\*q \*q" n \*q
-sets the verbosity level for information printed on stderr. The default
-verbosity level is 0.
-.TP
-.BI "Option \*qwm\*q \*q" fd \*q
-is used by the Wayland server to pass \fIXwayland\fP the socket where the X
-window manager client connects, when the \fBrootless\fP option is enabled.
-.TP
-.B Option \*qOtherOptions\*q \*q\fIarg1\fP \fIarg2\fP ...\*q
-passes additional command line options to \fIXwslg\fP if specified. These
-may be any of the options listed in the output of 'Xwslg \fB\-help\fP'.
+.TP 7
+.BR "Option \(dqOtherOptions\(dq \(dq" "\fIarg1\fP \fIarg2\fP ..." \(dq
+passes additional command line options to \fBXwslg\fP if specified. These
+may be any of the options listed in the output of '\fBXwslg \-help\fP'.
 .PP
 Examples:
 .PP
-.RS
-Set the \fB\-retro\fP option by default for all instances of \fIXwslg\fP:
+.RS 4
+Set the \fB\-retro\fP option by default for all instances of \fBXwslg\fP:
 .PP
-.RS
-.nf
-.B "Section \*qVendor\*q"
-.B "    Option \*qOtherOptions\*q \*q\-retro\*q"
+.RS 4
+.B "Section \(dqVendor\(dq"
+.br
+.B "    Option \(dqOtherOptions\(dq \(dq\-retro\(dq"
+.br
 .B "EndSection"
-.fi
+.br
 .RE
 .PP
-Set the window fullscreen with its geometry matching the physical monitor
-if \fIXwslg\fP was started by \fIxinit\fP(1) (i.e. \fIstartx\fP(1)):
+Run \fBXwslg\fP in fullscreen if it was started by \fBxinit\fP(1) (i.e.
+\fBstartx\fP(1)):
 .PP
-.RS
-.nf
-.B "Section \*qVendor\*q"
-.B "    Identifier \*qxinit\*q"
-.B "    Option \*qfullscreen\*q"
-.B "    Option \*qgeometry\*q \*qauto\*q"
+.RS 4
+.B "Section \(dqVendor\(dq"
+.br
+.B "    Identifier \(dqxinit\(dq"
+.br
+.B "    Option \(dqFullscreen\(dq \(dqEnable\(dq"
+.br
 .B "EndSection"
-.fi
+.br
 .RE
 .PP
-Apply the same settings for \fIxdm\fP(1) as for \fIxinit\fP:
+Apply the same settings for \fBxdm\fP(1) as for \fBxinit\fP:
 .PP
-.RS
-.nf
-.B "Section \*qVendor\*q"
-.B "    Identifier \*qxdm\*q"
-.B "    Option \*qExtend\*q \*qxinit\*q"
+.RS 4
+.B "Section \(dqVendor\(dq"
+.br
+.B "    Identifier \(dqxdm\(dq"
+.br
+.B "    Option \(dqExtend\(dq \(dqxinit\(dq"
+.br
 .B "EndSection"
-.fi
+.br
 .RE
 .PP
-Apply the same settings for \fIlightdm\fP(1) as \fIxinit\fP, but also enable the
-\fBhidpi\fP option:
+Apply the same settings for \fBlightdm\fP(1) as \fBxinit\fP, but also
+enable the \fBHiDPI\fP option:
 .PP
-.RS
-.nf
-.B "Section \*qVendor\*q"
-.B "    Identifier \*qlightdm\*q"
-.B "    Option \*qExtend\*q \*qxinit\*q"
-.B "    Option \*qhidpi\*q"
+.RS 4
+.B "Section \(dqVendor\(dq"
+.br
+.B "    Identifier \(dqlightdm\(dq"
+.br
+.B "    Option \(dqExtend\(dq \(dqxinit\(dq"
+.br
+.B "    Option \(dqHiDPI\(dq"
+.br
 .B "EndSection"
-.fi
+.br
 .RE
 .RE
 .SH "NOTES"
-Special thanks to David Dawes \fI<dawes@xfree86.org>\fP, without whose work
-\fIxwslg.conf\fP and \fIXwslg\fP wouldn't be possible.
+Special thanks to David Dawes \fI<dawes@xfree86.org>\fP, without whose
+work \fIxwslg.conf\fP and \fBXwslg\fP wouldn't be possible.
 .SH "SEE ALSO"
-\fIXorg\fP(1), \fIXserver\fP(1), \fIXwayland\fP(1), \fIXwslg\fP(1), \fIxorg.conf\fP(5)
+.BR Xorg (1),
+.BR Xserver (1),
+.BR Xwayland (1),
+.BR Xwslg (1),
+.BR xorg.conf (5)

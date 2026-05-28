@@ -1,0 +1,28 @@
+#!/bin/env -S powershell -ExecutionPolicy Bypass -WslFile
+
+Add-Type -TypeDefinition @"
+#User32.cs#
+"@
+$distro = ($PWD.Path -split "\\")[4]
+
+while ([User32]::EnumWindows([User32+WNDENUMPROC] {
+	param([IntPtr] $hwnd, [IntPtr] $lParam)
+
+	$wpid = [UInt32]::new()
+	[Void] [User32]::GetWindowThreadProcessId($hwnd, [ref] $wpid)
+
+	if ((Get-Process -Id $wpid).ProcessName -eq "msrdc")
+	{
+		$wtext = [Text.StringBuilder]::new([User32]::GetWindowTextLength($hwnd))
+		[Void] [User32]::GetWindowText($hwnd, $wtext, $wtext.Capacity + 1)
+		if ($wtext.ToString() -match "^(\[.*\] )?(top-level window|Xwayland on :[0-9]+) \($distro\)$")
+		{
+			# WM_SYSCOMMAND, SC_MINIMIZE
+			[Void] [User32]::SendMessage($hwnd, 0x0112, [UIntPtr]::new(0xF020), [IntPtr]::Zero)
+			return $false
+		}
+	}
+
+	return $true
+}, [IntPtr]::Zero))
+{}

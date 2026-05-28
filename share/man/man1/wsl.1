@@ -1,4 +1,13 @@
 .\" Created with help from help2man.
+.de insetnosp
+.in +\\$1
+\\$2
+.in -\\$1
+..
+.de inset
+.insetnosp \\$1 "\\$2"
+.sp
+..
 .TH WSL 1 "%DATE%" "%NAME% %VERSION%"
 .SH NAME
 wsl \- launches WSL instance from within WSL
@@ -8,255 +17,244 @@ wsl \- launches WSL instance from within WSL
 .SH DESCRIPTION
 The Windows Subsystem for Linux (WSL) enables Linux programs to run on
 Windows under a virtualized Linux operating system. WSL is invoked and
-managed using the \fIwsl.exe\fP command in Windows. At times, it may be
-advantageous to manage/invoke WSL from within WSL itself. The \fIwsl\fP command
-is a wrapper script that calls Windows' \fIwsl.exe\fP for this purpose.
+managed using the \fBwsl.exe\fP command in Windows. At times, it may be
+advantageous to manage/invoke WSL from within WSL itself. The \fBwsl\fP
+command is a wrapper script that calls Windows' \fBwsl.exe\fP for this
+purpose.
 .SH OPTIONS
-The options described here are largely the same as for \fIwsl.exe\fP under
+The options described here are largely the same as for \fBwsl.exe\fP under
 Windows, with a few extra. Under WSL, most of these options are
-unavailable for regular users, apart from \fB\-\-list\fP, \fB\-\-status\fP, and
-\fB\-\-version\fP; otherwise, it would be possible to run commands as
-root without entering a password. Any file path arguments must be Windows
-paths. These options may be reviewed at any time using 'wsl \fB\-\-help\fP'.
+unavailable for regular users, apart from \fB\-\-list\fP,
+\fB\-\-status\fP, and \fB\-\-version\fP; otherwise, it would be possible
+to run commands as root without entering a password. Any file path
+arguments must be Windows paths unless otherwise noted. These options may
+be reviewed at any time using '\fBwsl \-\-help\fP'.
 .SS "Arguments for running Linux binaries:"
-If no command line is provided, \fIwsl\fP launches the default shell.
-.TP
-\fB\-\-exec\fP, \fB\-e\fP <CommandLine>
+If no command line is provided, \fBwsl\fP launches the default shell.
+.TP 4
+\fB\-\-exec\fP, \fB\-e\fP <\fICommandLine\fP>
 Execute the specified command without using the default Linux shell.
-.TP
-\fB\-\-shell\-type\fP <standard|login|none>
+.TP 4
+\fB\-\-shell\-type\fP <\fBstandard\fP|\fBlogin\fP|\fBnone\fP>
 Execute the specified command with the provided shell type.
-.TP
+.TP 4
 \fB\-\-\fP
 Pass the remaining command line as\-is.
 .SS "Options:"
-.TP
-\fB\-\-cd\fP <Directory>
+.TP 4
+\fB\-\-cd\fP <\fIDirectory\fP>
 Sets the specified directory as the current working directory.
-If \(ti is used the Linux user's home path will be used. If the path begins
+.br
+If \(ti is used the Linux user's home path will be used. If the path
+begins
+.br
 with a / character, it will be interpreted as an absolute Linux path.
+.br
 Otherwise, the value must be an absolute Windows path.
-.TP
-\fB\-\-distribution\fP, \fB\-d\fP <DistroName>
+.TP 4
+\fB\-\-distribution\fP, \fB\-d\fP <\fIDistroName\fP>
 Run the specified distribution.
-.TP
-\fB\-\-distribution\-id\fP <DistroGuid>
+.TP 4
+\fB\-\-distribution\-id\fP <\fIDistroGuid\fP>
 Run the specified distribution ID.
-.TP
-\fB\-\-user\fP, \fB\-u\fP <UserName>
+.TP 4
+\fB\-\-user\fP, \fB\-u\fP <\fIUserName\fP>
 Run as the specified user.
-.TP
+.TP 4
 \fB\-\-system\fP
 Launches a shell for the system distribution.
 .SS "Arguments for managing Windows Subsystem for Linux:"
-.TP
+.TP 4
 \fB\-\-help\fP
 Display usage information.
-.TP
+.TP 4
 \fB\-\-debug\-shell\fP
 Open a WSL2 debug shell for diagnostics purposes.
-.TP
-\fB\-\-install\fP [Distro] [Options...]
+.TP 4
+\fB\-\-install\fP [\fIDistro\fP] [\fIOptions\fP...]
 Install a Windows Subsystem for Linux distribution.
-For a list of valid distributions, use 'wsl \fB\-\-list\fP \fB\-\-online\fP'.
+.br
+For a list of valid distributions, use '\fBwsl \-\-list\fP
+\fB\-\-online\fP'.
+.PP
+.RS 4
 Options:
-.RS
-.TS
-l l.
-.TP
+.RS 4
 \fB\-\-enable\-wsl1\fP
-Enable WSL1 support.
-.TP
+.inset 4 "Enable WSL1 support."
 \fB\-\-fixed\-vhd\fP
-Create a fixed\-size disk to store the distribution.
-.TP
-\fB\-\-from\-file\fP <Path>
-Install a distribution from a local file.
-.TP
+.inset 4 "Create a fixed\-size disk to store the distribution."
+\fB\-\-from\-file\fP <\fIPath\fP>
+.inset 4 "Install a distribution from a local file."
 \fB\-\-legacy\fP
-Use the legacy distribution manifest.
-.TP
-\fB\-\-location\fP <Location>
-Set the install path for the distribution.
-.TP
-\fB\-\-name\fP <Name>
-Set the name of the distribution.
-.TP
+.inset 4 "Use the legacy distribution manifest."
+\fB\-\-location\fP <\fILocation\fP>
+.inset 4 "Set the install path for the distribution."
+\fB\-\-name\fP <\fIName\fP>
+.inset 4 "Set the name of the distribution."
 \fB\-\-no\-distribution\fP
-Only install the required optional components, does not install a
-distribution.
-.TP
+.inset 4 "Only install the required optional components, does not \
+install a distribution."
 \fB\-\-no\-launch\fP, \fB\-n\fP
-Do not launch the distribution after install.
-.TP
-\fB\-\-version\fP <Version>
-Specifies the version to use for the new distribution.
-.TP
-\fB\-\-vhd\-size\fP <MemoryString>
-Specifies the size of the disk to store the distribution.
-.TP
+.inset 4 "Do not launch the distribution after install."
+\fB\-\-version\fP <\fIVersion\fP>
+.inset 4 "Specifies the version to use for the new distribution."
+\fB\-\-vhd\-size\fP <\fIMemoryString\fP>
+.inset 4 "Specifies the size of the disk to store the distribution."
 \fB\-\-web\-download\fP
-Download the distribution from the internet instead of the Microsoft
-Store.
-.TE
+.inset 4 "Download the distribution from the internet instead of the \
+Microsoft Store."
 .RE
-.TP
-\fB\-\-manage\fP <Distro> <Options...>
+.RE
+.TP 4
+\fB\-\-manage\fP <\fIDistro\fP> <\fIOptions\fP...>
 Changes distro specific options.
+.PP
+.RS 4
 Options:
-.RS
-.TS
-l l.
-.TP
-\fB\-\-move\fP <Location>
-Move the distribution to a new location.
-.TP
-\fB\-\-set\-sparse\fP, \fB\-s\fP <true|false>
-Set the vhdx of distro to be sparse, allowing disk space to be
-automatically reclaimed.
-.TP
-\fB\-\-set\-default\-user\fP <Username>
-Set the default user of the distribution.
-.TP
-\fB\-\-resize\fP <MemoryString>
-Resize the disk of the distribution to the specified size.
-.TE
+.RS 4
+\fB\-\-move\fP <\fILocation\fP>
+.inset 4 "Move the distribution to a new location."
+\fB\-\-set\-sparse\fP, \fB\-s\fP <\fBtrue\fP|\fBfalse\fP>
+.inset 4 "Set the vhdx of distro to be sparse, allowing disk space to be \
+automatically reclaimed."
+\fB\-\-set\-default\-user\fP <\fIUsername\fP>
+.inset 4 "Set the default user of the distribution."
+\fB\-\-resize\fP <\fIMemoryString\fP>
+.inset 4 "Resize the disk of the distribution to the specified size."
 .RE
-.TP
-\fB\-\-mount\fP <Disk>
+.RE
+.TP 4
+\fB\-\-mount\fP <\fIDisk\fP>
 Attaches and mounts a physical or virtual disk in all WSL 2 distributions.
+.PP
+.RS 4
 Options:
-.RS
-.TS
-l l.
-.TP
+.RS 4
 \fB\-\-vhd\fP
-Specifies that <Disk> refers to a virtual hard disk.
-.TP
+.inset 4 "Specifies that <\fIDisk\fP> refers to a virtual hard disk."
 \fB\-\-bare\fP
-Attach the disk to WSL2, but don't mount it.
-.TP
-\fB\-\-name\fP <Name>
-Mount the disk using a custom name for the mountpoint.
-.TP
-\fB\-\-type\fP <Type>
-Filesystem to use when mounting a disk, if not specified defaults to ext4.
-.TP
-\fB\-\-options\fP <Options>
-Additional mount options.
-.TP
-\fB\-\-partition\fP <Index>
-Index of the partition to mount, if not specified defaults to the whole
-disk.
-.TE
+.inset 4 "Attach the disk to WSL2, but don't mount it."
+\fB\-\-name\fP <\fIName\fP>
+.inset 4 "Mount the disk using a custom name for the mountpoint."
+\fB\-\-type\fP <\fIType\fP>
+.inset 4 "Filesystem to use when mounting a disk, if not specified \
+defaults to ext4."
+\fB\-\-options\fP <\fIOptions\fP>
+.inset 4 "Additional mount options."
+\fB\-\-partition\fP <\fIIndex\fP>
+.inset 4 "Index of the partition to mount, if not specified defaults to \
+the whole disk."
 .RE
-.TP
-\fB\-\-set\-default\-version\fP <Version>
+.RE
+.TP 4
+\fB\-\-set\-default\-version\fP <\fIVersion\fP>
 Changes the default install version for new distributions.
-.TP
+.TP 4
 \fB\-\-shutdown\fP
 Immediately terminates all running distributions and the WSL 2
 lightweight utility virtual machine.
-.TP
+.TP 4
 \fB\-\-status\fP
 Show the status of Windows Subsystem for Linux.
-.TP
-\fB\-\-unmount\fP [Disk]
+.TP 4
+\fB\-\-unmount\fP [\fIDisk\fP]
 Unmounts and detaches a disk from all WSL2 distributions.
+.br
 Unmounts and detaches all disks if called without argument.
-.TP
+.TP 4
 \fB\-\-uninstall\fP
 Uninstalls the Windows Subsystem for Linux package from this machine.
-.TP
+.TP 4
 \fB\-\-update\fP
 Update the Windows Subsystem for Linux package.
+.PP
+.RS 4
 Options:
-.RS
-.TS
-l l.
-.TP
+.RS 4
 \fB\-\-pre\-release\fP
-Download a pre\-release version if available.
-.TE
+.inset 4 "Download a pre\-release version if available."
 .RE
-.TP
+.RE
+.TP 4
 \fB\-\-version\fP, \fB\-v\fP
 Display version information.
 .SS "Arguments for managing distributions in Windows Subsystem for Linux:"
-.TP
-\fB\-\-export\fP <Distro> <FileName> [Options]
+.TP 4
+\fB\-\-export\fP <\fIDistro\fP> <\fIFileName\fP> [\fIOptions\fP]
 Exports the distribution to a tar file.
+.br
 The filename can be \- for stdout.
+.PP
+.RS 4
 Options:
-.RS
-.TS
-l l.
-.TP
-\fB\-\-format\fP <Format>
-Specifies the export format. Supported values: tar, tar.gz, tar.xz, vhd.
-.TE
+.RS 4
+\fB\-\-format\fP <\fIFormat\fP>
+.inset 4 "Specifies the export format. Supported values: tar, tar.gz, \
+tar.xz, vhd."
 .RE
-.TP
-\fB\-\-import\fP <Distro> <InstallLocation> <FileName> [Options]
+.RE
+.TP 4
+\fB\-\-import\fP <\fIDistro\fP> <\fIInstallLocation\fP> <\fIFileName\fP> [\fIOptions\fP]
 Imports the specified tar file as a new distribution.
+.br
 The filename can be \- for stdin.
+.PP
+.RS 4
 Options:
-.RS
-.TS
-l l.
-.TP
-\fB\-\-version\fP <Version>
-Specifies the version to use for the new distribution.
-.TP
+.RS 4
+\fB\-\-version\fP <\fIVersion\fP>
+.inset 4 "Specifies the version to use for the new distribution."
 \fB\-\-vhd\fP
-Specifies that the provided file is a .vhdx file, not a tar file.
-This operation makes a copy of the .vhdx file at the specified install
-location.
-.TE
+.insetnosp 4 "Specifies that the provided file is a .vhdx file, not a \
+tar file."
+.br
+.inset 4 "This operation makes a copy of the .vhdx file at the specified \
+install location."
 .RE
-.TP
-\fB\-\-import\-in\-place\fP <Distro> <FileName>
+.RE
+.TP 4
+\fB\-\-import\-in\-place\fP <\fIDistro\fP> <\fIFileName\fP>
 Imports the specified .vhdx file as a new distribution.
+.br
 This virtual hard disk must be formatted with the ext4 filesystem type.
-.TP
-\fB\-\-list\fP, \fB\-l\fP [Options]
+.TP 4
+\fB\-\-list\fP, \fB\-l\fP [\fIOptions\fP]
 Lists distributions.
+.PP
+.RS 4
 Options:
-.RS
-.TS
-l l.
-.TP
+.RS 4
 \fB\-\-all\fP
-List all distributions, including distributions that are
-currently being installed or uninstalled.
-.TP
+.inset 4 "List all distributions, including distributions that are \
+currently being installed or uninstalled."
 \fB\-\-running\fP
-List only distributions that are currently running.
-.TP
+.inset 4 "List only distributions that are currently running."
 \fB\-\-quiet\fP, \fB\-q\fP
-Only show distribution names.
-.TP
+.inset 4 "Only show distribution names."
 \fB\-\-verbose\fP, \fB\-v\fP
-Show detailed information about all distributions.
-.TP
+.inset 4 "Show detailed information about all distributions."
 \fB\-\-online\fP, \fB\-o\fP
-Displays a list of available distributions for install with 'wsl
-\fB\-\-install\fP'.
-.TE
+.inset 4 "Displays a list of available distributions for install with \
+'\fBwsl \-\-install\fP'."
 .RE
-.TP
-\fB\-\-set\-default\fP, \fB\-s\fP <Distro>
+.RE
+.TP 4
+\fB\-\-set\-default\fP, \fB\-s\fP <\fIDistro\fP>
 Sets the distribution as the default.
-.TP
-\fB\-\-set\-version\fP <Distro> <Version>
+.TP 4
+\fB\-\-set\-version\fP <\fIDistro\fP> <\fIVersion\fP>
 Changes the version of the specified distribution.
-.TP
-\fB\-\-terminate\fP, \fB\-t\fP <Distro>
+.TP 4
+\fB\-\-terminate\fP, \fB\-t\fP <\fIDistro\fP>
 Terminates the specified distribution.
-.TP
-\fB\-\-unregister\fP <Distro>
+.TP 4
+\fB\-\-unregister\fP <\fIDistro\fP>
 Unregisters the distribution and deletes the root filesystem.
-.SS "Additional options:"
-.TP
+.SS "Additional arguments:"
+.TP 4
 \fB\-\-this\-distribution\fP
-Run the current distribution.
+Run another instance of the current distribution.
+.br
+This is the same as specifying '\fB\-d Ubuntu\fP' under Ubuntu, for
+example.

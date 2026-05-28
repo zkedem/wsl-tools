@@ -30,97 +30,104 @@ Xwslg \- an X server for WSLg
 .B Xwslg
 [option ...]
 .SH DESCRIPTION
-\fIXwslg\fP is a wrapper script for \fIXwayland\fP(1) that sets up the runtime
-environment for \fIXwayland\fP and also translates some \fIXorg\fP(1) options into
-ones that \fIXwayland\fP understands. \fIXwslg\fP is meant as a replacement for the
-\fIXorg\fP X server under the Windows Subsystem for Linux GUI (WSLg).
-.SH "ENVIRONMENT VARIABLES"
-.\" adapted from Xwayland(1).
-.TP
-.B WAYLAND_DISPLAY
-the name of the display of the Wayland server.
-.TP
-.B XWAYLAND_NO_GLAMOR
-disable glamor and DRI3 support in \fIXwayland\fP, for testing purposes.
-.TP
-.B XWSLGCONFIG
-absolute path to configuration file for "root" user; relative path to
-configuration file for regular users; see \fIxwslg.conf\fP(5) for more
-information.
+\fBXwslg\fP is an X server launcher for the Windows Subsystem for Linux
+GUI (WSLg) that uses \fBXwayland\fP as its backend. It is meant as a
+replacement for the \fBXorg\fP X server.
 .SH OPTIONS
-\fIXwslg\fP accepts all the command line options described in the \fIXserver\fP(1)
-and \fIXwayland\fP(1) manual pages, as well as the \fB\-config\fP and \fB\-configdir\fP
-options described in \fIXorg\fP(1). The following options are also supported:
-.TP
-.B \-divert \fIcmd\fP
-Divert a command to \fIXwslg\fP. This means that, when you attempt to run
-\fIcmd\fP, \fIXwslg\fP will be called instead. The command should take the same
-options/arguments as a typical X server.
+\fBXwslg\fP accepts all the command line options described in the
+\fBXserver\fP(1) and \fBXwayland\fP(1) manual pages, as well as the
+\fB\-config\fP and \fB\-configdir\fP options of \fBXorg\fP(1). The
+following options are also supported:
+.TP 8
+.BI "\-divert " cmd
+Divert a command to \fBXwslg\fP. This means that, when you attempt to run
+\fIcmd\fP, \fBXwslg\fP will be called instead. The command should take the
+same options/arguments as a typical X server.
 
 In most cases, if you have installed @NAME@ from your package manager,
-\fIXorg\fP will be diverted to \fIXwslg\fP by default. If not, you can run
-\&'Xwslg \fB\-divert\fP Xorg'.
+\fBXorg\fP will be diverted to \fBXwslg\fP by default. If not, you can run
+\&'\fBXwslg \-divert Xorg\fP'.
 
 The original command will still be available as '\fIcmd\fP.diverted'.
-.TP
-.B \-restore \fIcmd\fP
-Restore a command previously diverted to \fIXwslg\fP with the \fB\-divert\fP option.
-.PP
-Furthermore, the display number option (\fB:\fP) described in the \fIXserver\fP(1)
-manual page, and the \fB\-geometry\fP option described in the \fIXwayland\fP(1) manual
-page, are modified as follows:
-.TP
-.B :\fIdisplaynumber\fP
-\fIXwslg\fP runs as the given \fIdisplaynumber\fP, which by default is 0. If multiple
-X servers are to run simultaneously on a host, each must have a unique
-display number. If a display number is already taken, \fIXwslg\fP will
-automatically select the lowest available display number. See the DISPLAY
-NAMES section of the \fIX\fP(7) manual page to learn how to specify which
-display number clients should try to use.
-.TP
-.B \-geometry \fIWxH\fP|\fIauto\fP
-Sets the geometry of the \fIXwayland\fP window to \fIWxH\fP when running rootful. If
-\fIauto\fP is specified instead, the geometry will be set automatically to match
-that of the physical monitor.
+.TP 8
+\fB\-parse\fP \fIsection\fP[\fB.\fP\fIsubsection\fP|\fB@\fP\fImode\fP] \
+[\fIid\fP]
+Parse a configuration file specified with the \fB\-config\fP option, then
+exit. This dumps \fBXwslg\fP's internal parser model of the given section
+of the file to standard output, which can be useful for debugging.
 
-This option is not compatible with rootless mode (\fB\-rootless\fP).
+A specific instance of a section may be selected with \fIid\fP, which may
+be either a number or the value of an \fBIdentifier\fP entry (see the
+\fBxwslg.conf\fP(5) manual page).
+
+Subsections and modes within a section instance can also be dumped.
+Subsections can be selected with a period (\fB.\fP), and modes can be
+selected with a commercial at (\fB@\fP). For instance,
+\&'\fBScreen.Display\fP' dumps the \fBDisplay\fP subsection of a
+\fBScreen\fP section, and '\fBMonitor@1920x1080_60\fP' dumps the
+\fB1920x1080_60\fP mode description from a \fBMonitor\fP section.
+.TP 8
+.BI "\-restore " cmd
+Restore a command previously diverted to \fBXwslg\fP with the
+\fB\-divert\fP option.
+.PP
+Furthermore, the display number option (\fB:\fP) described in the
+\fBXserver\fP(1) manual page is modified as follows:
+.TP 8
+.BI : displaynumber
+\fBXwslg\fP runs as the given \fIdisplaynumber\fP, which by default is 0.
+If multiple X servers are to run simultaneously on a host, each must have
+a unique display number. If a display number is already taken, \fBXwslg\fP
+will automatically select the next available display number. See the
+DISPLAY NAMES section of the \fBX\fP(7) manual page to learn how to
+specify which display number clients should try to use.
+.SH ENVIRONMENT
+.TP 8
+.B XWSLGCONFIG
+absolute path to configuration file for "root" user; relative path to
+configuration file for regular users; see \fBxwslg.conf\fP(5) for more
+information.
 .SH CONFIGURATION
 .\" adapted from Xorg(1).
-\fIXwslg\fP makes use of a configuration file called \fIxwslg.conf\fP and
+\fBXwslg\fP makes use of a configuration file called \fIxwslg.conf\fP and
 configuration files with the suffix \fI.conf\fP in a directory called
-\fIxwslg.conf.d\fP for its initial setup. Refer to the \fIxwslg.conf\fP(5) manual page
-for information about the format of this file.
+\fIxwslg.conf.d\fP for its initial setup. Refer to the \fBxwslg.conf\fP(5)
+manual page for information about the format of this file.
 .PP
-If no \fIxwslg.conf\fP file or \fIxwslg.conf.d\fP files are present, \fIXwslg\fP assumes the
-same default settings as \fIXwayland\fP.
+If no \fIxwslg.conf\fP file or \fIxwslg.conf.d\fP files are present,
+\fBXwslg\fP assumes the same default settings as \fBXwayland\fP.
 .SH FILES
 .\" adapted from Xorg(1).
-\fIXwslg\fP config files can be found in a range of locations. These are
-documented fully in the \fIxwslg.conf\fP(5) manual page. Some common locations
-are shown here.
-.TP
+\fBXwslg\fP config files can be found in a range of locations. These are
+documented fully in the \fBxwslg.conf\fP(5) manual page. Some common
+locations are shown here.
+.TP 30
 .B /etc/X11/xwslg.conf
-\fIXwslg\fP configuration file.
-.TP
+\fBXwslg\fP configuration file.
+.TP 30
 .B /etc/xwslg.conf
-\fIXwslg\fP configuration file.
-.TP
+\fBXwslg\fP configuration file.
+.TP 30
 .B /usr/etc/xwslg.conf
-\fIXwslg\fP configuration file.
-.TP
+\fBXwslg\fP configuration file.
+.TP 30
 .B /usr/lib/X11/xwslg.conf
-\fIXwslg\fP configuration file.
-.TP
+\fBXwslg\fP configuration file.
+.TP 30
 .B /etc/X11/xwslg.conf.d
-\fIXwslg\fP configuration directory.
-.TP
+\fBXwslg\fP configuration directory.
+.TP 30
 .B /etc/xwslg.conf.d
-\fIXwslg\fP configuration directory.
-.TP
+\fBXwslg\fP configuration directory.
+.TP 30
 .B /usr/etc/xwslg.conf.d
-\fIXwslg\fP configuration directory.
-.TP
+\fBXwslg\fP configuration directory.
+.TP 30
 .B /usr/lib/X11/xwslg.conf.d
-\fIXwslg\fP configuration directory.
+\fBXwslg\fP configuration directory.
 .SH "SEE ALSO"
-\fIXorg\fP(1), \fIXserver\fP(1), \fIXwayland\fP(1), \fIxwslg.conf\fP(5), \fIX\fP(7)
+.BR Xorg (1),
+.BR Xserver (1),
+.BR Xwayland (1),
+.BR xwslg.conf (5),
+.BR X (7)

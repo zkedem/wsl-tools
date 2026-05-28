@@ -2,6 +2,7 @@
 
 if [ -n "$(command -v systemctl)" ]
 then
+	systemctl enable keepwsl.service
 	systemctl enable wslg-fix.service
 	systemctl daemon-reload
 fi

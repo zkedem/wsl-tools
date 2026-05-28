@@ -1,0 +1,67 @@
+#!/bin/sh
+
+argrange()
+{
+	for a in $(seq $1 $2)
+	do
+		eval "range=\"\${range:+\$range }'\${$((a + 2))}'\""
+	done
+	unset a
+	echo "$range"
+	unset range
+}
+
+wincat()
+{
+	cat "$@" | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\r\n/g' | iconv -t UTF-16LE
+}
+
+privileged=0
+showhelp=1
+distroname="$(wslpath -m / | sed -E -e 's:^//.+/(.+)/$:\1:')"
+i=1
+uid=$(id -u -r)
+b0="$(basename $0)"
+wslexe=/mnt/*/Windows/System32/wsl.exe
+
+while true
+do
+	case "$(eval "echo \${$i}")" in
+		-l|-v|--list|--status|--version)
+			privileged=1
+			;;
+		--help)
+			showhelp=0
+			;;
+		--this-distribution)
+			eval "set -- $(argrange 1 $((i - 1)) "$@") -d \$distroname $(argrange $((i + 1)) $# "$@")"
+			;;
+	esac
+	i=$((i + 1))
+	[ $i -le $# ] || break
+done
+
+if ! (exit $showhelp)
+then
+	if (exit $privileged) && [ $uid -ne 0 ]
+	then
+		wincat <<EOF
+Superuser privileges required.
+Please use '$b0 --help' for more information.
+EOF
+		exit 1
+	fi
+	exec $wslexe "$@"
+fi
+
+wincat <<EOF
+$($wslexe "$@" | iconv -f UTF-16LE -t UTF-8 | sed -E -e "s/\r//" -e "s/`basename $wslexe | sed -E -e 's/\./\\./'`/$b0/")
+
+Additional arguments:
+
+    --this-distribution
+        Run another instance of the current distribution.
+        This is the same as specifying '-d Ubuntu' under Ubuntu, for example.
+
+When used from within WSL, the $b0 command may require superuser privileges.
+EOF
