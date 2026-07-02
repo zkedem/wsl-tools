@@ -33,6 +33,9 @@ do
 		--help)
 			showhelp=0
 			;;
+		--terminate-self)
+			eval "set -- $(argrange 1 $((i - 1)) "$@") -t \$distroname $(argrange $((i + 1)) $# "$@")"
+			;;
 		--this-distribution)
 			eval "set -- $(argrange 1 $((i - 1)) "$@") -d \$distroname $(argrange $((i + 1)) $# "$@")"
 			;;
@@ -59,9 +62,12 @@ $($wslexe "$@" | iconv -f UTF-16LE -t UTF-8 | sed -E -e "s/\r//" -e "s/`basename
 
 Additional arguments:
 
+    --terminate-self
+        Terminate the current distribution.
+        This is the same as specifying '-t Ubuntu' under Ubuntu, for example.
+
     --this-distribution
         Run another instance of the current distribution.
-        This is the same as specifying '-d Ubuntu' under Ubuntu, for example.
 
 When used from within WSL, the $b0 command may require superuser privileges.
 EOF

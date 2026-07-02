@@ -311,7 +311,10 @@ Unregisters the distribution and deletes the root filesystem.
 
 ## Additional arguments:
 
-**--this-distribution**  
-Run another instance of the current distribution.  
-This is the same as specifying '**-d Ubuntu**' under Ubuntu, for
+**--terminate-self**  
+Terminate the current distribution.  
+This is the same as specifying '**-t Ubuntu**' under Ubuntu, for
 example.
+
+**--this-distribution**  
+Run another instance of the current distribution.

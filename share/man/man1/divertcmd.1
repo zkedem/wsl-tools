@@ -1,0 +1,37 @@
+.TH DIVERTCMD 1 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+divertcmd \- override an existing command
+.SH SYNOPSIS
+.B divertcmd
+.RB [ \-r ]
+.IR fromcmd " " tocmd
+.br
+.B divertcmd
+.B \-h
+.SH DESCRIPTION
+\fBdivertcmd\fP diverts the command \fIfromcmd\fP by renaming it to
+\&'\fIfromcmd\fP.diverted', then creating a symbolic link to the
+command \fItocmd\fP with the same name as the original \fIfromcmd\fP. Both
+\fIfromcmd\fP and \fItocmd\fP must be valid commands in the system's PATH
+or be given as absolute file paths.
+.PP
+\fBdivertcmd\fP provides a similar facility to \fBdpkg\-divert\fP(1) on
+Debian-based systems, except that it is packaging system- and
+operating system-agnostic, and is focused solely on executable commands,
+not configuration files or similar.
+.PP
+\fBXwslg\fP(1) uses \fBdivertcmd\fP to replace the distribution's default
+X Window System server with itself.
+.SH OPTIONS
+.TP 4
+.B \-h
+Shows a help message.
+.TP 4
+.B \-r
+Undo the diversion for \fIfromcmd\fP and restore the original command.
+.SH NOTES
+\fBdivertcmd\fP's \fB\-r\fP option works even if \fItocmd\fP has been
+uninstalled or otherwise removed from the system.
+.SH "SEE ALSO"
+.BR Xwslg (1),
+.BR dpkg\-divert (1)

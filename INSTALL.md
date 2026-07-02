@@ -49,7 +49,7 @@ sudo make install PREFIX=/usr ROOTDIR=/media/sda1 SKIPSCRIPTS=y
 These options are also accepted by the `reinstall` and `uninstall` targets.
 
 # Building a package
-You will need to have [Ruby](https://www.ruby-lang.org/en/documentation/installation/) and [fpm](https://fpm.readthedocs.io/en/latest/installation.html) installed. Then, you can build the package:
+There are no additional prerequisites for building Slackware-type packages. For other package types, you will need to have [Ruby](https://www.ruby-lang.org/en/documentation/installation/) and [fpm](https://fpm.readthedocs.io/en/latest/installation.html) installed. Then, you can build the package:
 ```
 make package
 ```
@@ -57,7 +57,7 @@ By default, the Makefile will automatically build a package for your distributio
 ```
 make package TYPE=<type>
 ```
-where *\<type\>* is one of `deb`, `pacman`, `rpm`, `slackware`, or `tar`. Note that Slackware support is incomplete and is actively being worked on. Certain package types have additional prerequisites: `pacman` requires `bsdtar`, and `rpm` requires `rpmbuild`.\
+where *\<type\>* is one of `deb`, `pacman`, `rpm`, `slackware`, or `tar`. Certain package types have additional prerequisites: `pacman` requires `bsdtar`, and `rpm` requires `rpmbuild`.\
 \
 You may build multiple package types at once like so:
 ```
@@ -188,7 +188,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center">✔</td>
 		<td align="center">✔</td>
 		<td align="center">✔</td>
-		<td align="center">✔</td>
+		<td align="center"></td>
 		<td align="center">✔</td>
         <td align="center"></td>
 	</tr>
@@ -199,7 +199,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center">✔</td>
 		<td align="center">✔</td>
 		<td align="center">✔</td>
-		<td align="center">✔</td>
+		<td align="center"></td>
 		<td align="center">✔</td>
         <td align="center"></td>
 	</tr>

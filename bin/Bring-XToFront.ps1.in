@@ -3,7 +3,7 @@
 Add-Type -TypeDefinition @"
 #User32.cs#
 "@
-$distro = ($PWD.Path -split "\\")[4]
+$distro = $PWD.Path.Split([IO.Path]::DirectorySeparatorChar)[4]
 
 while ([User32]::EnumWindows([User32+WNDENUMPROC] {
 	param([IntPtr] $hwnd, [IntPtr] $lParam)

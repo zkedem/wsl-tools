@@ -4,7 +4,58 @@ if [ -n "$(command -v systemctl)" ]
 then
 	systemctl enable keepwsl.service
 	systemctl enable wslg-fix.service
+	if [ -x /usr/lib/systemd/systemd-sysv-install ]
+	then
+		/usr/lib/systemd/systemd-sysv-install disable keepwsl
+		/usr/lib/systemd/systemd-sysv-install disable mkinitctl
+		/usr/lib/systemd/systemd-sysv-install disable wslg-fix
+	fi
 	systemctl daemon-reload
+elif [ ! -x /usr/lib/lsb/install_initd ]
+then
+	find /etc/init.d/ -type f | while read -r f
+	do
+		infostart=$(grep -E -n -e '^### BEGIN INIT INFO$' "$f" | head -n 1 | cut -d : -f 1)
+		infolength=$((`grep -E -n -e '^### END INIT INFO$' "$f" | head -n 1 | cut -d : -f 1` - infostart))
+		bf="$(basename "$f")"
+		tail -n +$((infostart + 1)) "$f" | head -n $((infolength - 1)) | grep -E -e '^# Default-St(art|op):[[:space:]]+(([0-9KMS]([[:space:]]+|$))+)' | while read -r i
+		do
+			prefix="$(echo "$i" | sed -E -e 's/^# .+-(.+):.*/\1/' -e 's/Start/S/' -e 's/Stop/K/')"
+			echo "$i" | sed -E -e 's/^# .+-.+:[[:space:]]+((.([[:space:]]+|$))+)/\1/' -e 's/K/1/g' -e 's/M/2 3 4 5/g' -e 's/S/1 2 3 4 5/g' -e "s/[[:space:]]+/\n/g" | sort -u | while read -r l
+			do
+				ln -s "$f" "/etc/rc${l}.d/${prefix}01${bf}.sh"
+			done
+			unset prefix
+		done
+		unset bf
+		unset infolength
+		unset infostart
+	done
+	if [ -n "$(command -v installpkg)" ]
+	then
+		while read -r uninstscript
+		do
+			[ ! -x "$uninstscript" ] && break
+		done <<EOF
+$(ps -o args= -p $PPID | sed -E -e 's/^.*installpkg //' -e "s/(\.t[gblx]z) /\n/g" -e 's/\.t[gblx]z$//' -e "s:(^|\n)(.*/)?:\1/var/lib/pkgtools/douninst.sh/:g")
+EOF
+		cat <<EOF > /tmp/wtpost
+#!/bin/sh
+
+until [ -x "\$1" ]
+do
+	sleep 1
+done
+
+printf "\n_divertcmd()\n{\n" >> "\$1"
+cat "\$(command -v divertcmd)" >> "\$1"
+printf "}\n\n_divertcmd -r Xorg Xwslg\n" >> "\$1"
+rm -f "\$0"
+EOF
+		chmod a+x /tmp/wtpost
+		daemonify /tmp/wtpost "$uninstscript"
+		unset uninstscript
+	fi
 fi
 
 Xwslg -divert Xorg

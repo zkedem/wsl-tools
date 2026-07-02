@@ -267,12 +267,7 @@ do
 			argn=1
 			;;
 		-divert)
-			pathname=$(command -v -- "$arg2")
-			if [ -x "$pathname" ] && [ ! -L "$pathname" ]
-			then
-				mv "$pathname" "$pathname.diverted"
-				ln -s "$r0" "$pathname"
-			fi
+			divertcmd "$arg2" "$r0"
 			exit
 			;;
 		-parse)
@@ -281,12 +276,7 @@ do
 			exit
 			;;
 		-restore)
-			pathname=$(command -v -- "$arg2")
-			if [ -x "$pathname.diverted" ] && [ -L "$pathname" ] && [ "$(realpath "$pathname")" = "$r0" ]
-			then
-				rm -f "$pathname"
-				mv "$pathname.diverted" "$pathname"
-			fi
+			divertcmd -r "$arg2" "$r0"
 			exit
 			;;
 		*)
@@ -456,7 +446,7 @@ EOF1
 )
 EOF
 
-args=$(echo $opts $args | sed -E -e "s/vt([0-9]+)/tty\1/g" -e "s/-(keeptty|novtswitch)//g")
+args="$(echo $opts $args | sed -E -e "s/vt([0-9]+)/tty\1/g" -e "s/-(keeptty|novtswitch)//g")"
 unset opts
 unset f
 echo $args | grep -E -q -e '(^|[[:space:]])-help([[:space:]]|$)' && unset run

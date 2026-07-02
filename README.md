@@ -109,6 +109,18 @@ man 1 Return-ToWindows.ps1
 ### Shortcut
 A shortcut (desktop entry) for `Return-ToWindows.ps1` named "Return To Windows" is placed under the *System* category for your convenience.
 
+## divertcmd
+Diverts one command to another, similar to Debian's `dpkg-divert`.
+
+### Usage
+```
+divertcmd [-r] fromcmd tocmd
+```
+The `-r` option undoes the diversion. For full usage information, read the [manual page](docs/divertcmd.1.md):
+```
+man 1 divertcmd
+```
+
 ## Service units
 - **keepwsl.service**: Keeps WSL running when a graphical session is active; enabled by default.
 - **wslg-fix.service**: Ensures read/write access to X11 sockets for graphical applications; enabled by default.

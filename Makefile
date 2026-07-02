@@ -169,20 +169,21 @@ reinstall: uninstall install
 
 package:
 	TYPE='$(TYPE)'; \
+	PREFIX='/usr'; \
 	if [ -z "$$TYPE" ]; \
 	then \
-		if [ -n "`command -v dpkg`" ]; \
+		if [ -n "`command -v installpkg`" ]; \
 		then \
-			TYPE=deb; \
+			TYPE=slackware; \
 		elif [ -n "`command -v pacman`" ]; \
 		then \
 			TYPE=pacman; \
+		elif [ -n "`command -v dpkg`" ]; \
+		then \
+			TYPE=deb; \
 		elif [ -n "`command -v rpm`" ]; \
 		then \
 			TYPE=rpm; \
-		elif [ -n "`command -v installpkg`" ]; \
-		then \
-			TYPE=slackware; \
 		else \
 			TYPE=tar; \
 		fi; \
@@ -197,30 +198,19 @@ package:
 	}; \
 	pnformat() \
 	{ \
-		case '$(ARCHITECTURE)' in \
-			all|any|noarch) \
-				case "$$2" in \
-					deb) \
-						architecture=all; \
-						;; \
-					pacman) \
-						architecture=any; \
-						;; \
-					*) \
+		case "$$2" in \
+			'') \
+				case '$(ARCHITECTURE)' in \
+					all|any) \
 						architecture=noarch; \
-						;; \
-				esac; \
-				;; \
-			*) \
-				case "$$2" in \
-					deb) \
-						checkbuilddep dpkg "$$2" '$(ARCHITECTURE)'; \
-						architecture="`dpkgarch '$(ARCHITECTURE)'`"; \
 						;; \
 					*) \
 						architecture='$(ARCHITECTURE)'; \
 						;; \
 				esac; \
+				;; \
+			*) \
+				architecture="$$2"; \
 				;; \
 		esac; \
 		echo "$$1" | sed -E -e 's/%%/%/g' -e 's/%n/$(NAME)/g' -e 's/%v/$(VERSION)/g' -e 's/%r/$(RELEASE)/g' -e "s/%a/$$architecture/g"; \
@@ -250,7 +240,7 @@ package:
 	}; \
 	runfpm() \
 	{ \
-		pname="`pnformat "$$2" "$$1"`"; \
+		pname="`pnformat "$$2"`"; \
 		if [ -n "`echo '$(MAINTAINER_NAME)' | tr -c -d '.'`" ]; \
 		then \
 			maintainer='$(MAINTAINER_EMAIL) ($(MAINTAINER_NAME))'; \
@@ -271,7 +261,7 @@ package:
 			exec 6< '$(PRE_UNINSTALL)'; \
 			scripts='--post-install /dev/fd/4 --post-uninstall /dev/fd/5 --pre-uninstall /dev/fd/6'; \
 		fi; \
-		fpm -t "$$1" -s dir -p "$$pname" -f -n '$(NAME)' -v '$(VERSION)' --license '$(LICENSE)' -m "$$maintainer" --description '$(DESCRIPTION)' --url '$(URL)' --deb-dist '$(DEB_DIST)' --deb-no-default-config-files -a "`pnformat '%a' "$$1"`" $$changelog `deplist "$$3"` $$scripts `configfilelist '$(CONFIG_FILES)'` `filelist '$(STAGINGDIR)'`; \
+		fpm -t "$$1" -s dir -p "$$pname" -f -n '$(NAME)' -v '$(VERSION)' --license '$(LICENSE)' -m "$$maintainer" --description '$(DESCRIPTION)' --url '$(URL)' --deb-dist '$(DEB_DIST)' --deb-no-default-config-files -a "`pnformat '%a'`" $$changelog `deplist "$$3"` $$scripts `configfilelist '$(CONFIG_FILES)'` `filelist '$(STAGINGDIR)'`; \
 		if [ "$$1" != 'tar' ]; \
 		then \
 			unset scripts; \
@@ -289,20 +279,45 @@ package:
 		unset maintainer; \
 		unset pname; \
 	}; \
+	pkgren() \
+	{ \
+		pattern="`echo "$$1" | sed -E -e 's/%%/%/g' -e 's/%[nrv]/*/g' -e 's/%a/unknown/g'`"; \
+		oldname="`find "$$2" -name "$$pattern"`"; \
+		case "$$3" in \
+			deb) \
+				arch="`ar -p "$$oldname" control.tar.gz | tar -x ./control -z -f - -O | grep -E -e '^Architecture: .+$$' | sed -E -e 's/^.+: (.+)$$/\1/'`"; \
+				;; \
+			pacman) \
+				arch="`bsdtar -x -O -f "$$oldname" .PKGINFO | grep -E -e '^arch = .+$$' | sed -E -e 's/^.+ = (.+)$$/\1/'`"; \
+				;; \
+			*) \
+				arch='$(ARCHITECTURE)'; \
+				;; \
+		esac; \
+		newname="$$2/`pnformat "$$1" "$$arch"`"; \
+		mv "$$oldname" "$$newname"; \
+		echo "Saved package as '$$newname'" >&2; \
+		unset newname; \
+		unset arch; \
+		unset oldname; \
+		unset pattern; \
+	}; \
 	checkbuilddep fpm; \
 	mkdir -p '$(STAGINGDIR)'; \
-	make install ROOTDIR='$(STAGINGDIR)' PREFIX=/usr SKIPSCRIPTS=y; \
+	make install ROOTDIR='$(STAGINGDIR)' PREFIX="$$PREFIX" SKIPSCRIPTS=y; \
 	mkdir -p '$(BUILDDIR)'; \
 	echo "$$TYPE" | tr , "\n" | while read -r t; \
 	do \
 		rm -rf '$(STAGINGDIR)/install'; \
 		case "$$t" in \
 			deb) \
-				runfpm "$$t" '$(BUILDDIR)/%n_%v-%r_%a.deb' '$(DEB_DEPENDS)'; \
+				runfpm "$$t" '$(BUILDDIR)/%n_%v-%r_unknown.deb' '$(DEB_DEPENDS)'; \
+				pkgren '%n_%v-%r_%a.deb' '$(BUILDDIR)' "$$t"; \
 				;; \
 			pacman) \
 				checkbuilddep bsdtar "$$t"; \
-				runfpm "$$t" '$(BUILDDIR)/%n-%v-%r-%a.pkg.tar.zst' '$(PACMAN_DEPENDS)'; \
+				runfpm "$$t" '$(BUILDDIR)/%n-%v-%r-unknown.pkg.tar.zst' '$(PACMAN_DEPENDS)'; \
+				pkgren '%n-%v-%r-%a.pkg.tar.zst' '$(BUILDDIR)' "$$t"; \
 				;; \
 			rpm) \
 				checkbuilddep rpmbuild "$$t"; \
@@ -310,8 +325,9 @@ package:
 				;; \
 			slackware) \
 				mkdir -p '$(STAGINGDIR)/install'; \
-				preprocess -s doinst.sh.in -d '$(STAGINGDIR)/install/doinst.sh' DEPENDS='$(SLACKWARE_DEPENDS)'; \
-				runfpm 'tar' '$(BUILDDIR)/%n-%v-%a-%r.tgz'; \
+				cp '$(POST_INSTALL)' '$(STAGINGDIR)/install/doinst.sh'; \
+				cp '$(POST_UNINSTALL)' '$(STAGINGDIR)/install/douninst.sh'; \
+				find '$(STAGINGDIR)/' | env LC_COLLATE=C sort | sed -E -e 's,^$(STAGINGDIR)/,\./,' -e '2,$$s,^\./,,' | tar --no-recursion --format ustar -C '$(STAGINGDIR)/' -T - -cf - | gzip -9 > "`pnformat '$(BUILDDIR)/%n-%v-%a-%r.tgz'`"; \
 				;; \
 			tar) \
 				runfpm "$$t" '$(BUILDDIR)/%n-%v-%a-%r.tar'; \

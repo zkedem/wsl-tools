@@ -1,0 +1,95 @@
+#!/bin/sh
+
+b0="$(basename "$0")"
+
+showhelp()
+{
+	cat <<EOF >&2
+Usage: $b0 [-r] fromcmd tocmd
+   or: $b0 -h
+
+	-h  Show this help message.
+	-r  Restore command that has been diverted.
+
+After diversion, fromcmd will still be available as "fromcmd.diverted".
+EOF
+}
+
+while getopts 'hr' o
+do
+	case "$o" in
+		r)
+			restore=0
+			;;
+		?|h)
+			showhelp
+			exit 1
+			;;
+	esac
+done
+
+opcount=$(($# - OPTIND + 1))
+
+if [ $opcount -ne 2 ]
+then
+	if [ $opcount -lt 2 ]
+	then
+		echo 'Two operands are required' >&2
+	elif [ $opcount -gt 2 ]
+	then
+		echo 'Too many operands' >&2
+	fi
+	showhelp
+	exit 1
+fi
+
+eval "fromcmd=\${$OPTIND}"
+eval "tocmd=\${$((OPTIND + 1))}"
+frompathname="$(command -v -- "$fromcmd")"
+topathname="$(command -v -- "$tocmd")"
+
+if [ -z "$frompathname" ]
+then
+	while read -r d
+	do
+		candidate="$(find "$d" -type l -name "$fromcmd")"
+		if [ -n "$candidate" ]
+		then
+			frompathname="$candidate"
+			unset candidate
+			break
+		fi
+		unset candidate
+	done <<EOF
+$(echo "$PATH" | tr : "\n")
+EOF
+	unset d
+fi
+
+if [ -z "$topathname" ]
+then
+	if (exit ${restore:-1})
+	then
+		realpath "$frompathname" | grep -E -q -e "^($(echo "$PATH" | tr : '|'))/?$tocmd$" && topathname="$(realpath "$frompathname")"
+	else
+		echo "Command \"$tocmd\" not found" >&2
+		exit 1
+	fi
+else
+	topathname="$(realpath "$topathname")"
+fi
+
+if (exit ${restore:-1})
+then
+	if [ -x "$frompathname.diverted" ] && [ -L "$frompathname" ] && [ "$(realpath "$frompathname")" = "$topathname" ]
+	then
+		rm -f "$frompathname"
+		mv "$frompathname.diverted" "$frompathname"
+	fi
+else
+	if [ -x "$frompathname" ] && [ ! -L "$frompathname" ]
+	then
+		mv "$frompathname" "$frompathname.diverted"
+		ln -s "$topathname" "$frompathname"
+	fi
+fi

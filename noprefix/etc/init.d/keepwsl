@@ -1,0 +1,52 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          keepwsl
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     4
+# Default-Stop:
+# Short-Description: keepwsl
+# Description:       keepwsl
+### END INIT INFO
+
+b0="$(basename $0)"
+pidfile="/run/${b0}.pid"
+[ -f "$pidfile" ] && dpid=$(cat "$pidfile")
+
+case "$1" in
+	start)
+		logger -s "Starting $b0"
+		daemonify -L "$pidfile" -p "$pidfile" wsl --this-distribution --user root --exec sleep 2147483647
+		;;
+	stop)
+		logger -s "Stopping $b0"
+		if [ -n "$dpid" ] && [ -n "$(ps -o args= -p $dpid)" ]
+		then
+			kill $dpid
+			rm -f "$pidfile"
+		fi
+		;;
+	restart|force-reload)
+		"$0" stop
+		"$0" start
+		;;
+	status)
+		if [ -n "$dpid" ]
+		then
+			if [ -z "$(ps -o args= -p $dpid)" ]
+			then
+				echo "$b0 dead but pid file exists" >&2
+				exit 1
+			fi
+		else
+			echo "$b0 is stopped" >&2
+			exit 3
+		fi
+		echo "$b0 (pid $dpid) is running..." >&2
+		exit 0
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|force-reload|status}" >&2
+		exit 3
+		;;
+esac

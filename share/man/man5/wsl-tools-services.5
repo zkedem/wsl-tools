@@ -1,25 +1,28 @@
 .TH WSL-TOOLS-SERVICES 5 "%DATE%" "%NAME% %VERSION%"
 .SH NAME
-wsl\-tools\-services \- service units provided by @NAME@
+wsl\-tools\-services \- services provided by @NAME@
 .SH SYNOPSIS
 .BR keepwsl.service ,
 .BR wslg\-fix.service ,
 .B user\-runtime\-dir@.service.d
+.br
+.BR /etc/init.d/keepwsl ,
+.B /etc/init.d/wslg\-fix
 .SH DESCRIPTION
-For systemd\-based operating systems, @NAME@ includes service units that
-help facilitate its core functions. These are:
+@NAME@ includes services that help facilitate its core functions. These
+are:
 .TP 4
-.B keepwsl.service
+.BR keepwsl.service ", " /etc/init.d/keepwsl
 Keeps the Windows Subsystem for Linux (WSL) running when a desktop
 environment or graphical session is in use. Needed when full desktop
 environments with display managers are to be used.
 .TP 4
-.B wslg\-fix.service
+.BR wslg\-fix.service ", " /etc/init.d/wslg\-fix
 Ensures proper write access to the X11 socket used by the Windows
 Subsystem for Linux GUI (WSLg). Needed by \fBXwslg\fP(1) to function well.
 .PP
-In addition, @NAME@ modifies the user manager service unit
-(see \fBuser@.service\fP(5)) by adding the following lines:
+On systemd-based systems, @NAME@ also modifies the user manager service
+unit (see \fBuser@.service\fP(5)) by adding the following lines:
 .PP
 .in +4n
 .EX
@@ -30,5 +33,5 @@ ExecStartPost=\-/usr/bin/rm \-f /run/user/%i/wayland\-0 \
 .in
 .SH "SEE ALSO"
 .BR user@.service (5),
-.BR keepwsl.service (5),
-.BR wslg\-fix.service (5)
+.BR keepwsl (5),
+.BR wslg\-fix (5)

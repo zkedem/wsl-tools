@@ -1,0 +1,63 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          mkinitctl
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: mkinitctl
+# Description:       mkinitctl
+### END INIT INFO
+
+b0="$(basename $0)"
+pidfile="/run/${b0}.pid"
+[ -f "$pidfile" ] && dpid=$(cat "$pidfile")
+ctlfile="/run/initctl"
+ctllink="/dev/initctl"
+
+case "$1" in
+	start|restart|force-reload)
+		logger -s "Starting $b0"
+		[ -n "$dpid" ] && exit 0
+		echo $$ > "$pidfile"
+		if [ ! -p "$ctlfile" ]
+		then
+			rm -f "$ctlfile"
+			mkfifo "$ctlfile"
+		fi
+		if [ -n "$ctllink" ] && [ ! -L "$ctllink" ]
+		then
+			rm -f "$ctllink"
+			ln -s "$ctlfile" "$ctllink"
+		fi
+		kill -s USR1 1
+		rm -f "$pidfile"
+		;;
+	stop)
+		logger -s "Stopping $b0"
+		if [ -n "$dpid" ] && [ -n "$(ps -o args= -p $dpid)" ]
+		then
+			kill $dpid
+			rm -f "$pidfile"
+		fi
+		;;
+	status)
+		if [ -n "$dpid" ]
+		then
+			if [ -z "$(ps -o args= -p $dpid)" ]
+			then
+				echo "$b0 dead but pid file exists" >&2
+				exit 1
+			fi
+		else
+			echo "$b0 is stopped" >&2
+			exit 3
+		fi
+		echo "$b0 (pid $dpid) is running..." >&2
+		exit 0
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|force-reload|status}" >&2
+		exit 3
+		;;
+esac
