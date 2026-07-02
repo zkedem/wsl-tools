@@ -1,8 +1,0 @@
-#!/bin/sh
-
-slackpkgopts="-batch=on -default_answer=y"
-
-echo '%DEPENDS%' | tr , "\n" | while read -r d
-do
-	slackpkg $slackpkgopts install "$d" || slackpkg $slackpkgopts upgrade "$d"
-done
