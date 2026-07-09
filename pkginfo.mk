@@ -1,5 +1,5 @@
 NAME = wsl-tools
-VERSION = 2.1.1
+VERSION = 2.1.3
 REPO_URL = https://github.com/zkedem/wsl-tools.git
 REPO_TYPE = git
 RELEASE = 1
