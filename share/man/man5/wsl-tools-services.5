@@ -7,7 +7,8 @@ wsl\-tools\-services \- services provided by @NAME@
 .B user\-runtime\-dir@.service.d
 .br
 .BR /etc/init.d/keepwsl ,
-.B /etc/init.d/wslg\-fix
+.BR /etc/init.d/wslg\-fix ,
+.B /etc/init.d/mkinitctl
 .SH DESCRIPTION
 @NAME@ includes services that help facilitate its core functions. These
 are:
@@ -20,6 +21,10 @@ environments with display managers are to be used.
 .BR wslg\-fix.service ", " /etc/init.d/wslg\-fix
 Ensures proper write access to the X11 socket used by the Windows
 Subsystem for Linux GUI (WSLg). Needed by \fBXwslg\fP(1) to function well.
+.TP 4
+.B /etc/init.d/mkinitctl
+On non-systemd-based systems, ensures that the named pipe
+\fI/dev/initctl\fP is created and available at startup.
 .PP
 On systemd-based systems, @NAME@ also modifies the user manager service
 unit (see \fBuser@.service\fP(5)) by adding the following lines:
@@ -34,4 +39,5 @@ ExecStartPost=\-/usr/bin/rm \-f /run/user/%i/wayland\-0 \
 .SH "SEE ALSO"
 .BR user@.service (5),
 .BR keepwsl (5),
-.BR wslg\-fix (5)
+.BR wslg\-fix (5),
+.BR mkinitctl (5)

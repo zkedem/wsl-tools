@@ -1,0 +1,32 @@
+.TH MKINITCTL 5 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+mkinitctl \- create control channel for init
+.SH SYNOPSIS
+.BR /etc/init.d/mkinitctl " {"
+.BR start " |"
+.BR stop " |"
+.BR restart " |"
+.BR force\-reload " |"
+.BR status " }"
+.SH DESCRIPTION
+On systems that do not use systemd, \fBinit\fP makes use of a named pipe
+at \fI/dev/initctl\fP or \fI/run/initctl\fP to receive control messages
+from \fBpoweroff\fP(8), \fBreboot\fP(8), \fBshutdown\fP(8),
+\fBtelinit\fP(8), and similar utilities. Under the Windows Subsystem for
+Linux (WSL), this named pipe may not be created automatically, leaving
+these utilities unusable and making \fBinit\fP unable to change runlevels.
+.PP
+When enabled, \fBmkinitctl\fP runs automatically at startup, recreating
+the named pipe and signaling \fBinit\fP to start reading from it. The
+named pipe is created as \fI/run/initctl\fP with a symbolic link at
+\fI/dev/initctl\fP, so applications can use either path. This allows the
+system to change runlevels and shut down. \fBmkinitctl\fP may also be
+invoked manually as '\fB/etc/init.d/mkinitctl start\fP'.
+.PP
+\fBmkinitctl\fP should be enabled by default on all non-systemd-based
+systems. It is not used on systems that do have systemd.
+.SH "SEE ALSO"
+.BR poweroff (8),
+.BR reboot (8),
+.BR shutdown (8),
+.BR telinit (8)

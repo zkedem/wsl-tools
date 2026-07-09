@@ -121,10 +121,11 @@ The `-r` option undoes the diversion. For full usage information, read the [manu
 man 1 divertcmd
 ```
 
-## Service units
-- **keepwsl.service**: Keeps WSL running when a graphical session is active; enabled by default.
-- **wslg-fix.service**: Ensures read/write access to X11 sockets for graphical applications; enabled by default.
+## Services
+- **keepwsl.service**, **/etc/init.d/keepwsl**: Keeps WSL running when a graphical session is active; enabled by default.
+- **wslg-fix.service**, **/etc/init.d/wslg-fix**: Ensures read/write access to X11 sockets for graphical applications; enabled by default.
 - **user<span>@</span>.service**: Modified to ensure proper cleanup of Wayland lock files.
+- **/etc/init.d/mkinitctl**: Ensures a control channel for non-systemd inits is available at startup; enabled by default if the distribution does not use systemd.
 
 For more information, read the [manual page](docs/wsl-tools-services.5.md):
 ```

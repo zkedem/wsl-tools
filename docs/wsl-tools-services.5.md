@@ -6,7 +6,8 @@ wsl-tools-services - services provided by wsl-tools
 
 **keepwsl.service**, **wslg-fix.service**,
 **user-runtime-dir<span>@</span>.service.d**  
-**/etc/init.d/keepwsl**, **/etc/init.d/wslg-fix**
+**/etc/init.d/keepwsl**, **/etc/init.d/wslg-fix**,
+**/etc/init.d/mkinitctl**
 
 # DESCRIPTION
 
@@ -22,6 +23,10 @@ environments with display managers are to be used.
 Ensures proper write access to the X11 socket used by the Windows
 Subsystem for Linux GUI (WSLg). Needed by **Xwslg**(1) to function well.
 
+**/etc/init.d/mkinitctl**  
+On non-systemd-based systems, ensures that the named pipe _/dev/initctl_
+is created and available at startup.
+
 On systemd-based systems, wsl-tools also modifies the user manager
 service unit (see **user<span>@</span>.service**(5)) by adding the
 following lines:
@@ -31,4 +36,5 @@ following lines:
 
 # SEE ALSO
 
-**user<span>@</span>.service**(5), **keepwsl**(5), **wslg-fix**(5)
+**user<span>@</span>.service**(5), **keepwsl**(5), **wslg-fix**(5),
+**mkinitctl**(5)
