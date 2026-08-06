@@ -98,7 +98,7 @@ make docs DOCSDIR=/var/www/wsl-tools LUAFILTER=~/script.lua
 ```
 To clean the documentation directory, you can run:
 ```
-make docs_clean [DOCSDIR=<docsdir>]
+make clean_docs [DOCSDIR=<docsdir>]
 ```
 
 # Dependencies

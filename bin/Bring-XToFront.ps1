@@ -1,16 +1,24 @@
 #!/bin/env -S powershell -ExecutionPolicy Bypass -WslFile
 
-Add-Type -TypeDefinition @"
-#User32.cs#
-"@
 $distro = $PWD.Path.Split([IO.Path]::DirectorySeparatorChar)[4]
+$fsroot = "\\wsl.localhost\$distro"
+$sources = "User32.cs"
+
+foreach ($directory in "$fsroot\usr\lib", "$fsroot\usr\local\lib")
+{
+	foreach ($file in $sources)
+	{
+		if (Test-Path "$directory\$file" -PathType Leaf)
+		{
+			Add-Type -TypeDefinition $(Get-Content "$directory\$file" -Raw)
+		}
+	}
+}
 
 while ([User32]::EnumWindows([User32+WNDENUMPROC] {
 	param([IntPtr] $hwnd, [IntPtr] $lParam)
-
 	$wpid = [UInt32]::new()
 	[Void] [User32]::GetWindowThreadProcessId($hwnd, [ref] $wpid)
-
 	if ((Get-Process -Id $wpid).ProcessName -eq "msrdc")
 	{
 		$wtext = [Text.StringBuilder]::new([User32]::GetWindowTextLength($hwnd))
@@ -30,7 +38,6 @@ while ([User32]::EnumWindows([User32+WNDENUMPROC] {
 			return $false
 		}
 	}
-
 	return $true
 }, [IntPtr]::Zero))
 {}
