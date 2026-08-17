@@ -113,7 +113,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<th>Building an <code>rpm</code> package</th>
 		<th>Building a <code>slackware</code> package</th>
 		<th>Building a <code>tar</code> package</th>
-        <th>Generating Markdown documentation</th>
+		<th>Generating Markdown documentation</th>
 	</tr>
 	<tr>
 		<th>pkgkit</th>
@@ -124,7 +124,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center">✔</td>
 		<td align="center">✔</td>
 		<td align="center">✔</td>
-        <td align="center">✔</td>
+		<td align="center">✔</td>
 	</tr>
 	<tr>
 		<th>git</th>
@@ -135,7 +135,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center">✔</td>
 		<td align="center">✔</td>
 		<td align="center">✔</td>
-        <td align="center">✔</td>
+		<td align="center">✔</td>
 	</tr>
 	<tr>
 		<th>Xorg</th>
@@ -146,7 +146,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center"></td>
 		<td align="center"></td>
 		<td align="center"></td>
-        <td align="center"></td>
+		<td align="center"></td>
 	</tr>
 	<tr>
 		<th>Xwayland</th>
@@ -157,9 +157,9 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center"></td>
 		<td align="center"></td>
 		<td align="center"></td>
-        <td align="center"></td>
+		<td align="center"></td>
 	</tr>
-    <tr>
+	<tr>
 		<th>binutils</th>
 		<td align="center">✔</td>
 		<td align="center">✔</td>
@@ -168,7 +168,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center"></td>
 		<td align="center"></td>
 		<td align="center"></td>
-        <td align="center"></td>
+		<td align="center"></td>
 	</tr>
 	<tr>
 		<th>util-linux</th>
@@ -179,7 +179,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center"></td>
 		<td align="center"></td>
 		<td align="center"></td>
-        <td align="center"></td>
+		<td align="center"></td>
 	</tr>
 	<tr>
 		<th>Ruby</th>
@@ -190,7 +190,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center">✔</td>
 		<td align="center"></td>
 		<td align="center">✔</td>
-        <td align="center"></td>
+		<td align="center"></td>
 	</tr>
 	<tr>
 		<th>fpm</th>
@@ -201,7 +201,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center">✔</td>
 		<td align="center"></td>
 		<td align="center">✔</td>
-        <td align="center"></td>
+		<td align="center"></td>
 	</tr>
 	<tr>
 		<th>bsdtar</th>
@@ -212,7 +212,7 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center"></td>
 		<td align="center"></td>
 		<td align="center"></td>
-        <td align="center"></td>
+		<td align="center"></td>
 	</tr>
 	<tr>
 		<th>rpmbuild</th>
@@ -223,9 +223,9 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center">✔</td>
 		<td align="center"></td>
 		<td align="center"></td>
-        <td align="center"></td>
+		<td align="center"></td>
 	</tr>
-    <tr>
+	<tr>
 		<th>pandoc</th>
 		<td align="center"></td>
 		<td align="center"></td>
@@ -234,6 +234,6 @@ Below is a table of dependencies for installing and packaging wsl-tools:
 		<td align="center"></td>
 		<td align="center"></td>
 		<td align="center"></td>
-        <td align="center">✔</td>
+		<td align="center">✔</td>
 	</tr>
 </table>

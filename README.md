@@ -121,6 +121,18 @@ The `-r` option undoes the diversion. For full usage information, read the [manu
 man 1 divertcmd
 ```
 
+## Get-WindowsEnv.ps1
+This PowerShell script lists Windows environment variables and their current values from within WSL.
+
+### Usage
+```
+Get-WindowsEnv.ps1 [-Posix] [-LowerCase] [[-Prefix] prefix] [-Name name]
+```
+The `-Posix` option ensures variable names only contain characters allowed by a standards-compliant shell. The `-LowerCase` option renders variable names in lower case. Read the [manual page](docs/Get-WindowsEnv.ps1.1.md) for full information:
+```
+man 1 Get-WindowsEnv.ps1
+```
+
 ## Services
 - **keepwsl.service**, **/etc/init.d/keepwsl**: Keeps WSL running when a graphical session is active; enabled by default.
 - **wslg-fix.service**, **/etc/init.d/wslg-fix**: Ensures read/write access to X11 sockets for graphical applications; enabled by default.

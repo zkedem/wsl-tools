@@ -1,0 +1,50 @@
+.TH GET-WINDOWSENV.PS1 1 "%DATE%" "%NAME% %VERSION%"
+.SH NAME
+Get\-WindowsEnv.ps1 \- Accesses Windows environment variables from WSL
+.SH SYNOPSIS
+.B Get\-WindowsEnv.ps1
+.RB [ \-Posix ]
+.RB [ \-LowerCase ]
+.RB [[ \-Prefix ]
+.IR prefix ]
+.RB [ \-Name
+.IR name ]
+.br
+.B Get\-WindowsEnv.ps1
+.B \-Help
+.SH DESCRIPTION
+\fBGet\-WindowsEnv.ps1\fP is a Windows Powershell script that writes
+enivronment variables from Windows to standard output, similarly to the
+\fBenv\fP(1) or \fBset\fP commands. It allows Windows environment
+variables to be accessed and read from within the Windows Subsystem for
+Linux (WSL), though it does not allow those variables to be modified.
+Variable names and values can be output in a format suitable for input to
+\fBsh\fP(1) and other common shells.
+.SH OPTIONS
+.TP 4
+.B \-Help
+Show a help message.
+.TP 4
+.B \-Posix
+Output variable names in a format acceptable to POSIX \fBsh\fP for input,
+using only the 26 letters of the basic Latin alphabet in upper and lower
+case, digits, and underscores. Common punctuation marks which are allowed
+in Windows variable names are replaced with underscores, so
+"\fBProgramFiles(x86)\fP" becomes "\fBProgramFiles_x86_\fP", for example.
+.TP 4
+.B \-LowerCase
+Output variable names in lower case. Because Windows treats variable names
+case-insensitively while also preserving the case with which they were
+originally defined, this can help prevent name conflicts if the variables
+are to be imported by a shell script.
+.TP 4
+.BI "\-Prefix " prefix
+Only output variables whose names begin with the given prefix.
+.TP 4
+.BI "\-Name " name
+Only output the variable whose name matches the given name. This option
+overrides \fB\-Prefix\fP.
+.SH "SEE ALSO"
+.BR env (1),
+.BR powershell (1),
+.BR sh (1)

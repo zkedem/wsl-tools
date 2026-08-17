@@ -22,7 +22,10 @@ distroname="$(wslpath -m / | sed -E -e 's:^//.+/(.+)/$:\1:')"
 i=1
 uid=$(id -u -r)
 b0="$(basename $0)"
-wslexe=/mnt/*/Windows/System32/wsl.exe
+. /dev/stdin <<EOF
+$(Get-WindowsEnv.ps1 -LowerCase -Name windir)
+EOF
+wslexe="$(wslpath "$windir\\System32\\wsl.exe")"
 
 while true
 do

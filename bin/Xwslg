@@ -471,11 +471,15 @@ then
 	if hasfeature -fullscreen && echo $args | grep -E -q -e '(^|[[:space:]])-fullscreen([[:space:]]|$)'
 	then
 		. /dev/stdin <<EOF
-$(/mnt/*/Windows/System32/wbem/WMIC.exe PATH Win32_VideoController GET CurrentHorizontalResolution,CurrentVerticalResolution /format:list | tr -d "\r")
+$(Get-WindowsEnv.ps1 -LowerCase -Name windir)
+EOF
+		. /dev/stdin <<EOF
+$(`wslpath "$windir\\System32\\wbem\\WMIC.exe"` PATH Win32_VideoController GET CurrentHorizontalResolution,CurrentVerticalResolution /format:list | tr -d "\r")
 EOF
 		args=$(echo $args | sed -E -e "s/(^|[[:space:]])(-fullscreen)([[:space:]]|$)/\1\2 -geometry ${CurrentHorizontalResolution}x${CurrentVerticalResolution}\3/g")
 		unset CurrentVerticalResolution
 		unset CurrentHorizontalResolution
+		unset windir
 	elif ! echo $args | grep -E -q -e '(^|[[:space:]])-rootless([[:space:]]|$)'
 	then
 		args=$(echo $args | sed -E -e "s/(^|[[:space:]])(-fullscreen)([[:space:]]|$)/\3/g")
